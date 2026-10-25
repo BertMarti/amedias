@@ -4,12 +4,13 @@
 
 | Versión | Soporte |
 |---|---|
-| 0.1.x | ✅ |
+| 0.2.x | ✅ |
+| 0.1.x | ❌ (actualiza a 0.2) |
 
 ## Cómo informar de una vulnerabilidad
 
 **No abras un issue público.** Usa el informe privado de GitHub:
-<https://github.com/BertMarti/amedias/security/advisories/new>.
+<https://github.com/BertMarti/repartito/security/advisories/new>.
 
 Incluye la versión o el commit, los pasos para reproducirlo y el impacto. Si puedes, no adjuntes datos de gastos reales.
 
@@ -33,4 +34,5 @@ Fuera: dispositivos ya comprometidos, extensiones del navegador y los riesgos ac
 - Service worker que verifica el SHA-256 de cada archivo antes de guardarlo o servirlo desde la caché.
 - CSV con protección anti-fórmulas.
 - CI con CodeQL, gitleaks, `npm audit`, revisión de dependencias, OpenSSF Scorecard y Dependabot; actions fijadas por SHA; `ignore-scripts` en npm. El despliegue exige las mismas comprobaciones.
+- App de Android sin permisos del sistema, con origen propio, sin copia en la nube y firma verificable con atestación de procedencia ([docs/ANDROID.md](docs/ANDROID.md)).
 - Auditoría independiente antes de la v0.1.0: [resultados en el modelo de amenazas](docs/MODELO_DE_AMENAZAS.md#auditoría-independiente-v010).

@@ -78,7 +78,7 @@ export function ImportSheet({ active, onClose, restore }: SheetProps & { restore
               value={text}
               spellCheck={false}
               autoComplete="off"
-              placeholder="https://bertmarti.github.io/amedias/#g=…"
+              placeholder="https://bertmarti.github.io/repartito/#g=…"
               onChange={(e) => {
                 setText(e.target.value);
                 setError(null);

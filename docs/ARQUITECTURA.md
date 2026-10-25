@@ -17,6 +17,8 @@ src/
   ui/            pantallas y componentes React
   i18n/          español e inglés
 public/          manifest, iconos y service worker (funciona sin conexión)
+android/         proyecto de Android (Capacitor): la misma web dentro de un APK
+  ui/native.ts     lo único que cambia en la app (compartir, guardar, URL pública)
 test/            Vitest: dominio (core.test.ts) e interfaz (ui/)
 ```
 
@@ -31,3 +33,4 @@ test/            Vitest: dominio (core.test.ts) e interfaz (ui/)
 | Importar Splitwise | Quien se va de Splitwise por sus límites se trae su historial con los mismos saldos. |
 | React + Vite, sin librerías de UI ni de gráficos | Control de la CSP y del peso; las gráficas son SVG propias. |
 | PWA con service worker propio | Funciona sin conexión (en el súper, en un viaje); sin dependencias extra. |
+| App de Android con Capacitor | Una sola base de código; origen propio, sin permisos y sin copia en la nube (ver [ANDROID.md](ANDROID.md)). |

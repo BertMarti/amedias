@@ -7,7 +7,7 @@ let fetchMock: Mock;
 
 beforeEach(() => {
   localStorage.clear();
-  history.replaceState(null, '', '/amedias/');
+  history.replaceState(null, '', '/repartito/');
   fetchMock = vi.fn();
   vi.stubGlobal('fetch', fetchMock);
 });
@@ -47,7 +47,7 @@ function createGroupWithExpense() {
 describe('interfaz', () => {
   it('crea un grupo, añade un gasto y muestra los saldos', () => {
     createGroupWithExpense();
-    // Tú pagaste 30 € a medias con Ana: te deben 15 €.
+    // Tú pagaste 30 € Repartito con Ana: te deben 15 €.
     expect(screen.getByText('Te deben')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Saldos' }));
     expect(screen.getByText(money('le deben 15,00 €'))).toBeTruthy();
@@ -90,7 +90,7 @@ function sharedGroup(): Group {
 describe('abrir un enlace compartido', () => {
   it('borra el #g= al momento, enseña el grupo y lo añade', async () => {
     const payload = await encodeGroup(sharedGroup());
-    history.replaceState(null, '', `/amedias/#g=${payload}`);
+    history.replaceState(null, '', `/repartito/#g=${payload}`);
     render(<App />);
     expect(location.hash).toBe('');
     expect(location.href).not.toContain(payload);
@@ -111,7 +111,7 @@ describe('abrir un enlace compartido', () => {
 
   it('con contraseña: la pide y avisa si es incorrecta', async () => {
     const payload = await encodeGroup(sharedGroup(), 'mango-lima-42');
-    history.replaceState(null, '', `/amedias/#g=${payload}`);
+    history.replaceState(null, '', `/repartito/#g=${payload}`);
     render(<App />);
     expect(location.hash).toBe('');
 
@@ -127,7 +127,7 @@ describe('abrir un enlace compartido', () => {
   }, 60_000);
 
   it('un enlace dañado da un mensaje claro', async () => {
-    history.replaceState(null, '', '/amedias/#g=1.AAAA');
+    history.replaceState(null, '', '/repartito/#g=1.AAAA');
     render(<App />);
     expect(location.hash).toBe('');
     expect(await screen.findByText(/incompleto o dañado/)).toBeTruthy();
@@ -138,7 +138,7 @@ describe('auditoría de seguridad (interfaz)', () => {
   it('F4: un enlace con ediciones fechadas en el futuro no se puede fusionar', async () => {
     const g = sharedGroup();
     g.expenses[0]!.updatedAt = Date.now() + 700 * 24 * 3600 * 1000;
-    history.replaceState(null, '', `/amedias/#g=${await encodeGroup(g)}`);
+    history.replaceState(null, '', `/repartito/#g=${await encodeGroup(g)}`);
     render(<App />);
     expect(await screen.findByText(/fecha futura/)).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Añadir este grupo' })).toBeNull();
@@ -147,9 +147,9 @@ describe('auditoría de seguridad (interfaz)', () => {
 
   it('F2: al fusionar se enseña también lo que se borra', async () => {
     const g = sharedGroup();
-    localStorage.setItem('amedias:v1:grupos', JSON.stringify([g]));
+    localStorage.setItem('repartito:v1:grupos', JSON.stringify([g]));
     const borrado = { ...g, expenses: g.expenses.map((e) => ({ ...e, deleted: true, updatedAt: e.updatedAt + 1 })) };
-    history.replaceState(null, '', `/amedias/#g=${await encodeGroup(borrado)}`);
+    history.replaceState(null, '', `/repartito/#g=${await encodeGroup(borrado)}`);
     render(<App />);
     expect(await screen.findByText('1 gasto borrado')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Fusionar' }));
@@ -157,9 +157,9 @@ describe('auditoría de seguridad (interfaz)', () => {
   });
 
   it('F11: los datos dañados se apartan con fecha y se pueden recuperar desde Ajustes', () => {
-    localStorage.setItem('amedias:v1:grupos', JSON.stringify([{ v: 1, id: 'roto' }]));
+    localStorage.setItem('repartito:v1:grupos', JSON.stringify([{ v: 1, id: 'roto' }]));
     render(<App />);
-    const keys = Object.keys(localStorage).filter((k) => k.startsWith('amedias:v1:grupos-danados:'));
+    const keys = Object.keys(localStorage).filter((k) => k.startsWith('repartito:v1:grupos-danados:'));
     expect(keys).toHaveLength(1);
     fireEvent.click(screen.getByRole('button', { name: 'Ajustes' }));
     expect(screen.getByText(/1 copia de datos que no se pudo abrir/)).toBeTruthy();

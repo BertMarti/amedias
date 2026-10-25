@@ -1,6 +1,6 @@
 # Modelo de amenazas
 
-«a medias» es una web estática (GitHub Pages) sin servidor propio ni cuentas. Los datos viven en el
+Repartito es una web estática (GitHub Pages) sin servidor propio ni cuentas. Los datos viven en el
 navegador de cada persona. Análisis STRIDE de lo que sí puede salir mal.
 
 ## Activos
@@ -37,18 +37,34 @@ navegador de cada persona. Análisis STRIDE de lo que sí puede salir mal.
 | I1 | **Divulgación**: los datos en la URL acaban en servidores o historiales | Van en el fragmento `#` (no se envía al servidor ni en el `Referer`); la app lo borra de la barra y de la entrada actual del historial nada más leerlo. **No** puede borrarlo del historial global del navegador, de su sincronización ni de la app de mensajería por la que llegó: para grupos sensibles, usa contraseña. | `share.ts`, `store.ts` |
 | I2 | Enlace interceptado | Contraseña opcional: PBKDF2 600 000 + AES-256-GCM. La que genera la app tiene unos 79 bits de azar (4 bloques de 4 símbolos): probarlas todas está fuera del alcance práctico. Una contraseña corta elegida a mano sí se puede adivinar sin conexión. | `share.ts`, `util.ts` |
 | I3 | Fuga por `Referer` o recursos externos | `no-referrer`; la app no hace ninguna petición a terceros (sin analítica, CDN ni fuentes externas). | `index.html`, tests de interfaz |
-| I4 | XSS que robe los datos de todos los grupos | CSP estricta (`default-src 'self'`, sin `unsafe-*`), **Trusted Types** con una sola política permitida (`trusted-types amedias-sw`, ni siquiera `default`), texto siempre como texto (React), ESLint y CI prohíben `innerHTML`/`eval`. | `vite.config.ts`, `eslint.config.js`, `ci.yml` |
+| I4 | XSS que robe los datos de todos los grupos | CSP estricta (`default-src 'self'`, sin `unsafe-*`), **Trusted Types** con una sola política permitida (`trusted-types repartito-sw`, ni siquiera `default`), texto siempre como texto (React), ESLint y CI prohíben `innerHTML`/`eval`. | `vite.config.ts`, `eslint.config.js`, `ci.yml` |
 | I5 | CSV abierto en Excel ejecuta fórmulas | Celdas que empiezan por `= + - @` neutralizadas con apóstrofo. | `csv.ts`, test |
 | D1 | **Denegación**: un enlace o archivo enorme o una bomba de descompresión cuelga el móvil | Topes de 1,5 MB (enlace), 8 MB (descomprimido), 20 MB (archivo), 50 personas, 20 000 gastos; la descompresión se corta en el tope. | `share.ts`, `validate.ts`, test «bombas» |
 | D2 | Un gasto fijo con fechas absurdas genera miles de gastos | Como mucho 36 meses de golpe; día del mes 1-28. | `recurring.ts` |
 | D3 | Almacenamiento lleno o dañado | Error visible al guardar; al cargar se apartan los grupos dañados sin perder los demás. La copia en bruto se guarda con fecha (las 3 últimas) y se puede descargar desde Ajustes. | `storage.ts`, `store.ts`, `SettingsSheet.tsx`, test F11 |
-| D4 | Abrir `…/amedias/icon.svg` (o cualquier otra ruta) sustituía la copia sin conexión de la app | El service worker solo guarda como app la propia `index.html`, y solo si su huella SHA-256 coincide con la publicada. | `public/sw.js`, test manual |
+| D4 | Abrir `…/repartito/icon.svg` (o cualquier otra ruta) sustituía la copia sin conexión de la app | El service worker solo guarda como app la propia `index.html`, y solo si su huella SHA-256 coincide con la publicada. | `public/sw.js`, test manual |
 | D5 | Lista con miles de gastos que atasca el móvil | Se pintan de 150 en 150 («Ver más»); los totales del mes se calculan con todos. | `ExpensesTab.tsx` |
-| I6 | **Origen compartido**: todas las webs de `bertmarti.github.io/*` (otros proyectos del mismo autor) son el mismo origen y comparten `localStorage`; un XSS en cualquiera de ellas podría leer o escribir los grupos | Las demás webs del origen son del mismo autor, sin servidor, con CSP estricta y revisión de seguridad; ninguna lee estas claves. Para aislarlo del todo: dominio propio (subdominio) para «a medias» (PLAN v0.2). | PLAN |
+| I6 | **Origen compartido**: todas las webs de `bertmarti.github.io/*` (otros proyectos del mismo autor) son el mismo origen y comparten `localStorage`; un XSS en cualquiera de ellas podría leer o escribir los grupos | Las demás webs del origen son del mismo autor, sin servidor, con CSP estricta y revisión de seguridad; ninguna lee estas claves. Para aislarlo del todo: dominio propio (subdominio) para Repartito (PLAN v0.2). | PLAN |
 | I7 | El mismo origen comparte también la **Cache API** y los service workers: otra página podría escribir un script falso en la caché de la app | Al compilar se inyecta en `sw.js` el SHA-256 de cada archivo publicado; nada se guarda ni se sirve desde la caché si su huella no coincide (se borra y se pide a la red). Cada despliegue estrena cachés. Riesgo restante: anular el registro del service worker (solo afecta al modo sin conexión). | `vite.config.ts` (`swIntegrity`), `public/sw.js`, test manual |
 | E1 | Enmarcar la app (clickjacking) | Sin acciones peligrosas de un clic; GitHub Pages no permite cabeceras, así que `frame-ancestors` no aplica (riesgo aceptado, bajo). | — |
 | SC1 | Dependencia comprometida | Pocas dependencias, todas de build; `ignore-scripts=true`; `npm audit`, revisión de dependencias y Dependabot con 7 días de espera. La imagen de Node de `dk.sh` va fijada por digest. | `.npmrc`, `ci.yml`, `dependabot.yml`, `dk.sh` |
 | SC2 | Action comprometida | Actions fijadas por SHA, permisos mínimos; solo el trabajo `deploy` puede publicar, y antes pasa lint, tipos, tests, `npm audit` y las comprobaciones de CSP y huellas. | `.github/workflows/` |
+
+## App de Android
+
+La app de Android ([docs/ANDROID.md](ANDROID.md)) es la misma web dentro de un APK. Cambia la superficie:
+
+| # | Amenaza | Mitigación | Dónde |
+|---|---|---|---|
+| A1 | Otras webs del mismo origen leen los datos (I6, I7) | En la app, el origen es `https://localhost` **propio del APK**: no se comparte con nadie. | Capacitor |
+| A2 | La app filtra datos por la red | **Ningún permiso del sistema**, ni Internet. El CI falla si el APK pide alguno. | `AndroidManifest.xml`, `android.yml` |
+| A3 | Copia automática de los gastos en la nube de Google o al pasar a otro móvil | `allowBackup=false` y reglas de extracción que lo excluyen todo. | `AndroidManifest.xml`, `data_extraction_rules.xml` |
+| A4 | Los plugins escriben en el registro del sistema (logcat) textos con datos (p. ej. un enlace) | `loggingBehavior: none`. | `capacitor.config.json` |
+| A5 | Depurar el WebView de la app publicada | Solo las compilaciones de depuración permiten DevTools; el CI comprueba que el APK publicado **no es depurable**. | `android.yml` |
+| A6 | `FileProvider` expone más archivos de los necesarios | Solo la caché privada (`cache-path`), donde se escriben las copias y los CSV antes de compartirlos. | `file_paths.xml` |
+| A7 | APK manipulado o firmado por otro | Firma con una clave que solo vive en un entorno de GitHub restringido a etiquetas `v*`; el CI verifica la huella del certificado; atestación de procedencia y `SHA256SUMS.txt` en cada release. | `android.yml`, `docs/ANDROID.md` |
+| A8 | Gradle o su wrapper comprometidos | `wrapper-validation` y `distributionSha256Sum` fijado; actions por SHA. | `android.yml`, `gradle-wrapper.properties` |
+| A9 | El build web arrastra código nativo | Los plugins de Capacitor se sustituyen por un módulo vacío en la web. | `vite.config.ts`, `native-stub.ts` |
 
 ## Riesgos aceptados
 
@@ -56,7 +72,8 @@ navegador de cada persona. Análisis STRIDE de lo que sí puede salir mal.
 - **Quien tiene el enlace y la contraseña** ve el grupo entero (como recibir el archivo).
 - **Relojes desajustados** pueden decidir qué edición gana en una fusión (ver
   [SINCRONIZACION.md](SINCRONIZACION.md#límites-del-modelo)); con un margen de 24 h.
-- **Origen compartido con otras webs del autor en `github.io`** (I6, I7), hasta pasar a un dominio propio.
+- **Origen compartido con otras webs del autor en `github.io`** (I6, I7) en la web, hasta pasar a un dominio propio. La app de Android no lo tiene (A1).
+- **Instalar el APK fuera de Google Play** obliga a permitir «fuentes desconocidas» para ese archivo; se mitiga con la firma verificable y la atestación (A7).
 - **Navegadores sin Trusted Types** (Firefox y Safari antiguos): la CSP sigue bloqueando scripts ajenos; solo
   falta esa capa extra.
 

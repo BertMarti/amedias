@@ -2,7 +2,7 @@
 
 > Documento técnico. Para una explicación de uso, ver el [README](../README.md).
 
-«a medias» no tiene servidor ni cuentas. Cada persona guarda **su copia** del grupo en su navegador
+Repartito no tiene servidor ni cuentas. Cada persona guarda **su copia** del grupo en su navegador
 (`localStorage`). Para ponerse al día, una persona envía un **enlace** (o un archivo), y quien lo abre
 **fusiona** esa copia con la suya. Cuando todas las personas han recibido los cambios de todas, las copias
 son idénticas.
@@ -10,8 +10,8 @@ son idénticas.
 ## El enlace
 
 ```text
-https://bertmarti.github.io/amedias/#g=1.<base64url(deflate-raw(JSON del grupo))>
-https://bertmarti.github.io/amedias/#g=1e.<base64url(salt16 ‖ iv12 ‖ AES-256-GCM(deflate-raw(JSON)))>
+https://bertmarti.github.io/repartito/#g=1.<base64url(deflate-raw(JSON del grupo))>
+https://bertmarti.github.io/repartito/#g=1e.<base64url(salt16 ‖ iv12 ‖ AES-256-GCM(deflate-raw(JSON)))>
 ```
 
 - Todo va en el **fragmento** (`#`): los navegadores no lo envían en la petición HTTP, así que ni GitHub

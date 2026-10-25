@@ -13,10 +13,12 @@ import './styles/summary.css';
 import './styles/sheets.css';
 import './styles/sheet-parts.css';
 import App from './App';
+import { NATIVE } from './ui/native';
 import { listenForInstall, registerServiceWorker } from './ui/platform';
 
 listenForInstall();
-if (import.meta.env.PROD) registerServiceWorker(import.meta.env.BASE_URL);
+// En la app de Android los archivos ya van dentro del APK: no hace falta service worker.
+if (import.meta.env.PROD && !NATIVE) registerServiceWorker(import.meta.env.BASE_URL);
 
 const root = document.getElementById('root');
 if (root) {

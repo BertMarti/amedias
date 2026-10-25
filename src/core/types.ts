@@ -1,5 +1,5 @@
 /**
- * Modelo de datos de «a medias». Todo el dinero va en **céntimos enteros** (nunca decimales flotantes).
+ * Modelo de datos de Repartito. Todo el dinero va en **céntimos enteros** (nunca decimales flotantes).
  *
  * Cada entidad lleva `id` (UUID) y `updatedAt` (ms): así dos copias del mismo grupo editadas en
  * móviles distintos se fusionan sin servidor (ver merge.ts). Borrar es marcar `deleted: true`

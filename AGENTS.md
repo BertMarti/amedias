@@ -1,4 +1,4 @@
-# AGENTS.md · a medias
+# AGENTS.md · Repartito
 
 Instrucciones para agentes de IA (Claude Code, OpenCode, Codex…) y personas que contribuyan.
 
@@ -7,7 +7,7 @@ Instrucciones para agentes de IA (Claude Code, OpenCode, Codex…) y personas qu
 PWA gratuita para **repartir gastos** de piso, pareja o viaje: sin cuenta, sin anuncios, sin límites y sin
 conexión. Los datos viven en el navegador. Se colabora enviando un **enlace** que se fusiona con la copia
 de cada persona (ver [docs/SINCRONIZACION.md](docs/SINCRONIZACION.md)). Publicada en GitHub Pages:
-<https://bertmarti.github.io/amedias/>.
+<https://bertmarti.github.io/repartito/>.
 
 ## Tecnología
 
@@ -16,6 +16,7 @@ de cada persona (ver [docs/SINCRONIZACION.md](docs/SINCRONIZACION.md)). Publicad
 - Cifrado y compresión con la plataforma: Web Crypto y `CompressionStream`.
 - **Vitest** (happy-dom) y **ESLint 10** con reglas anti-XSS.
 - **Node 24**. Si tu Node local es anterior, antepón `./dk.sh` (ejecuta en un contenedor Node 24).
+- **Android**: Capacitor 8 (plugins oficiales Share y Filesystem), JDK 21, compileSdk 36. Ver [docs/ANDROID.md](docs/ANDROID.md).
 
 ## Comandos
 
@@ -24,7 +25,8 @@ de cada persona (ver [docs/SINCRONIZACION.md](docs/SINCRONIZACION.md)). Publicad
 | Instalar | `npm ci` (`.npmrc` impide scripts de instalación) |
 | Desarrollo | `npm run dev` |
 | Todo el control de calidad | `npm run check` (lint + tipos + tests) |
-| Build | `npm run build` (sale en `dist/`, base `/amedias/`) |
+| Build | `npm run build` (sale en `dist/`, base `/repartito/`) |
+| App de Android | `npm run build:android`, luego `cd android && ./gradlew assembleDebug` |
 
 ## Estructura
 
@@ -32,7 +34,8 @@ de cada persona (ver [docs/SINCRONIZACION.md](docs/SINCRONIZACION.md)). Publicad
   validación. Cada cambio aquí lleva tests en `test/core.test.ts`.
 - `src/ui/`, `src/i18n/`, `src/styles/`: interfaz.
 - `public/`: manifest, iconos y `sw.js` (service worker escrito a mano).
-- `docs/`: sincronización, arquitectura y modelo de amenazas.
+- `android/`: proyecto nativo (manifiesto, iconos, firma por variables de entorno). `src/ui/native.ts` concentra lo que cambia en la app.
+- `docs/`: sincronización, arquitectura, app de Android y modelo de amenazas.
 
 ## Reglas (bloqueantes en revisión)
 
@@ -50,6 +53,9 @@ de cada persona (ver [docs/SINCRONIZACION.md](docs/SINCRONIZACION.md)). Publicad
 8. Las actions de GitHub se fijan por SHA; los workflows piden el mínimo de permisos.
 9. Cada dependencia nueva se justifica en el PR.
 10. Cada regla de seguridad nueva llega con un test que falla si se quita.
+11. La app de Android **no pide permisos** del sistema (el CI lo comprueba) ni guarda copias en la nube. Un plugin
+    nuevo de Capacitor se justifica en el PR y en el modelo de amenazas.
+12. Nunca subir claves de firma (`*.jks`, `*.p12`, `*.keystore`): la firma vive en el entorno `android-release`.
 
 ## Diseño: «dos mitades»
 

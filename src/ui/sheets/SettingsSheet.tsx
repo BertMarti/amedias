@@ -41,7 +41,7 @@ export function SettingsSheet({ active, onClose }: SheetProps) {
   const downloadDamaged = () => {
     // Tal cual se guardaron (texto en bruto): sirve para recuperar datos a mano o para pedir ayuda.
     const items = damaged.map((k) => ({ fecha: new Date(Number(k.slice(DAMAGED_PREFIX.length))).toISOString(), datos: localStorage.getItem(k) }));
-    downloadText(`amedias-apartados-${today()}.json`, JSON.stringify({ app: 'amedias', apartados: items }, null, 1), 'application/json');
+    downloadText(`repartito-apartados-${today()}.json`, JSON.stringify({ app: 'repartito', apartados: items }, null, 1), 'application/json');
     toast(t('toast.downloaded'), 'info');
   };
 
@@ -103,7 +103,7 @@ export function SettingsSheet({ active, onClose }: SheetProps) {
             className="btn btn--soft"
             disabled={groups.length === 0}
             onClick={() => {
-              downloadText(`amedias-copia-${today()}.json`, backupJson(groups), 'application/json');
+              downloadText(`repartito-copia-${today()}.json`, backupJson(groups), 'application/json');
               toast(t('toast.downloaded'), 'info');
             }}
           >
@@ -149,7 +149,7 @@ export function SettingsSheet({ active, onClose }: SheetProps) {
         </h3>
         <p>{t('about.privacy')}</p>
         <p className="muted small">{t('about.how')}</p>
-        <a className="btn btn--ghost btn--sm" href="https://github.com/BertMarti/amedias" target="_blank" rel="noopener noreferrer">
+        <a className="btn btn--ghost btn--sm" href="https://github.com/BertMarti/repartito" target="_blank" rel="noopener noreferrer">
           <Icon name="external" size={18} />
           {t('about.code')}
         </a>

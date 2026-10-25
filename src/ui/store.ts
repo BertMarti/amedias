@@ -11,6 +11,7 @@ import {
   loadSettings,
   materializeRecurring,
   mergeGroups,
+  migrateLegacyStorage,
   payloadFromHash,
   revalidate,
   saveGroups,
@@ -41,9 +42,9 @@ export interface State {
 
 type Actions = Omit<AppApi, keyof State | 'online'>;
 
-const GROUPS_KEY = 'amedias:v1:grupos';
+const GROUPS_KEY = 'repartito:v1:grupos';
 /** Copias en bruto de los datos que no pasaron la validación al abrir: `<prefijo><marca de tiempo>`. */
-export const DAMAGED_PREFIX = 'amedias:v1:grupos-danados:';
+export const DAMAGED_PREFIX = 'repartito:v1:grupos-danados:';
 const MAX_DAMAGED = 3;
 
 /** Claves de las copias apartadas, de la más reciente a la más antigua. */
@@ -81,6 +82,7 @@ export class AppStore {
   readonly actions: Actions;
 
   constructor() {
+    migrateLegacyStorage();
     const { groups, damaged } = loadGroups();
     this.damaged = damaged;
     if (damaged > 0) {
@@ -139,7 +141,7 @@ export class AppStore {
     if (this.booted) return;
     this.booted = true;
     const payload = this.takeHash();
-    history.replaceState({ amedias: 0 }, '');
+    history.replaceState({ repartito: 0 }, '');
     let added = 0;
     const next = this.state.groups.map((g) => {
       const r = materialized(g);
@@ -171,15 +173,15 @@ export class AppStore {
   };
 
   onPopState = (e: PopStateEvent) => {
-    const s = e.state as { amedias?: unknown } | null;
-    const depth = typeof s?.amedias === 'number' ? s.amedias : 0;
+    const s = e.state as { repartito?: unknown } | null;
+    const depth = typeof s?.repartito === 'number' ? s.repartito : 0;
     this.histDepth = depth;
     if (depth < this.state.layers.length) this.set({ layers: this.state.layers.slice(0, depth) });
   };
 
   /** Otra pestaña cambió los datos: se recargan (validados). */
   onStorage = (e: StorageEvent) => {
-    if (e.key !== null && !e.key.startsWith('amedias:')) return;
+    if (e.key !== null && !e.key.startsWith('repartito:')) return;
     this.set({ groups: loadGroups().groups, settings: loadSettings() });
   };
 
@@ -276,7 +278,7 @@ export class AppStore {
       this.flushQueued = false;
       const target = this.state.layers.length;
       const diff = target - this.histDepth;
-      if (diff > 0) for (let i = this.histDepth + 1; i <= target; i++) history.pushState({ amedias: i }, '');
+      if (diff > 0) for (let i = this.histDepth + 1; i <= target; i++) history.pushState({ repartito: i }, '');
       else if (diff < 0) history.go(diff);
       this.histDepth = target;
     });

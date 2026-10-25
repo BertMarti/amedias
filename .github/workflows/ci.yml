@@ -34,7 +34,7 @@ jobs:
       - name: La web publicada lleva la CSP con Trusted Types y el service worker con huellas
         run: |
           grep -q "require-trusted-types-for 'script'" dist/index.html
-          grep -q "trusted-types amedias-sw" dist/index.html
+          grep -q "trusted-types repartito-sw" dist/index.html
           ! grep -q "const VERSION = 'dev'" dist/sw.js
       - name: Sin sumideros de HTML ni eval en el código
         run: "! grep -rnE 'innerHTML|outerHTML|insertAdjacentHTML|dangerouslySetInnerHTML|eval\\(|new Function' src"

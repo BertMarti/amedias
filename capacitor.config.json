@@ -1,0 +1,16 @@
+{
+  "appId": "io.github.bertmarti.repartito",
+  "appName": "Repartito",
+  "webDir": "dist-android",
+  "loggingBehavior": "none",
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": false
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "native",
+      "initialViewportFitValueHint": "cover"
+    }
+  }
+}
