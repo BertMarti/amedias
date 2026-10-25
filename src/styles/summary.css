@@ -1,0 +1,148 @@
+/* ---------- Resumen ---------- */
+
+.month-bars {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  align-items: end;
+  height: 190px;
+}
+
+.month-bar {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  gap: 6px;
+  height: 100%;
+  min-width: 0;
+}
+
+.month-bar-value {
+  font-size: 0.72rem;
+  font-weight: 750;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  min-height: 1.2em;
+}
+
+@media (max-width: 420px) {
+  .month-bar:not(.month-bar--now) .month-bar-value {
+    visibility: hidden;
+  }
+}
+
+.month-bar-track {
+  position: relative;
+  width: 100%;
+  max-width: 44px;
+  height: 100%;
+  border-radius: 12px;
+  background: var(--paper-sunk);
+  overflow: hidden;
+}
+
+.month-bar-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 3px;
+  border-radius: 12px;
+  background: var(--ink-3);
+  transition: height 0.6s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.month-bar--now .month-bar-fill {
+  background: linear-gradient(135deg, var(--tomato) 0 50%, var(--mint) 50% 100%);
+}
+
+.month-bar-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.month-bar--now .month-bar-label {
+  color: var(--ink);
+}
+
+.cat-stack {
+  display: flex;
+  height: 14px;
+  gap: 3px;
+  margin-bottom: 14px;
+}
+
+.cat-stack-part {
+  flex-basis: 0;
+  min-width: 4px;
+  border-radius: 999px;
+  background: var(--c);
+}
+
+.cat-list,
+.spent-list {
+  display: grid;
+  gap: 10px;
+}
+
+.cat-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cat-name,
+.spent-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cat-pct {
+  color: var(--ink-3);
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.spent-list li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.spent-bar {
+  grid-column: 2 / -1;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--paper-sunk);
+  overflow: hidden;
+}
+
+.spent-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--c);
+}
+
+/* ---------- Fijos ---------- */
+
+.explainer {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: var(--saffron-soft);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.explainer svg {
+  flex: none;
+  color: var(--ink);
+}

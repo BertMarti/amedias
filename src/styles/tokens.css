@@ -1,0 +1,139 @@
+/* «Dos mitades»: papel cálido, tinta profunda, tomate (debes) y menta (te deben). */
+:root {
+  --paper: #fbf7f0;
+  --paper-sunk: #f3ebdf;
+  --card: #fffdf9;
+  --card-2: #f8f1e6;
+  --ink: #1d1a16;
+  --ink-2: #5d554b;
+  --ink-3: #8a8174;
+  --line: #e8dece;
+  --line-strong: #d9ccb8;
+  --tomato: #ff5a3c;
+  --tomato-ink: #c7381c;
+  --tomato-soft: #ffe3da;
+  --mint: #17b897;
+  --mint-ink: #0a7d66;
+  --mint-soft: #d4f4ea;
+  --saffron: #f5b83d;
+  --saffron-soft: #fdefcf;
+  --on-accent: #fffdf9;
+  --hero-bg: #1d1a16;
+  --hero-ink: #fbf7f0;
+  --hero-muted: #c9bfb1;
+  --hero-pos: #2fd3a8;
+  --hero-neg: #ff7457;
+  --focus: #2f6bff;
+  --backdrop: rgba(29, 26, 22, 0.42);
+
+  /* Paleta de avatares y categorías (armonizada con tomate y menta). */
+  --h0: #ff5a3c;
+  --h1: #17b897;
+  --h2: #e9a21a;
+  --h3: #7c5cfa;
+  --h4: #2f80ed;
+  --h5: #e84a7f;
+  --h6: #00a3c4;
+  --h7: #7f9a2b;
+
+  --font-display: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+  --font-ui: 'Manrope Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 24px;
+  --r-xl: 30px;
+  --lip: 0 2px 0 var(--line-strong);
+  --shadow: 0 1px 0 rgba(80, 52, 20, 0.05), 0 10px 28px -16px rgba(80, 52, 20, 0.35);
+  --shadow-lift: 0 2px 0 rgba(80, 52, 20, 0.06), 0 22px 44px -18px rgba(80, 52, 20, 0.45);
+
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --tabbar-h: 68px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --paper: #15120f;
+    --paper-sunk: #0f0d0b;
+    --card: #211c17;
+    --card-2: #2a241e;
+    --ink: #f7f0e6;
+    --ink-2: #c3b8a9;
+    --ink-3: #94897b;
+    --line: #362e26;
+    --line-strong: #0b0907;
+    --tomato: #ff7457;
+    --tomato-ink: #ff8f77;
+    --tomato-soft: #3d1f17;
+    --mint: #2fd3a8;
+    --mint-ink: #4fe0b9;
+    --mint-soft: #123329;
+    --saffron: #f7c35c;
+    --saffron-soft: #3a2e14;
+    --on-accent: #15120f;
+    --hero-bg: #f7efe3;
+    --hero-ink: #1d1a16;
+    --hero-muted: #5d554b;
+    --hero-pos: #0a7d66;
+    --hero-neg: #c7381c;
+    --focus: #8fb0ff;
+    --backdrop: rgba(0, 0, 0, 0.6);
+    --shadow: 0 1px 0 rgba(0, 0, 0, 0.3), 0 12px 30px -16px rgba(0, 0, 0, 0.7);
+    --shadow-lift: 0 2px 0 rgba(0, 0, 0, 0.35), 0 24px 48px -18px rgba(0, 0, 0, 0.8);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --paper: #15120f;
+  --paper-sunk: #0f0d0b;
+  --card: #211c17;
+  --card-2: #2a241e;
+  --ink: #f7f0e6;
+  --ink-2: #c3b8a9;
+  --ink-3: #94897b;
+  --line: #362e26;
+  --line-strong: #0b0907;
+  --tomato: #ff7457;
+  --tomato-ink: #ff8f77;
+  --tomato-soft: #3d1f17;
+  --mint: #2fd3a8;
+  --mint-ink: #4fe0b9;
+  --mint-soft: #123329;
+  --saffron: #f7c35c;
+  --saffron-soft: #3a2e14;
+  --on-accent: #15120f;
+  --hero-bg: #f7efe3;
+  --hero-ink: #1d1a16;
+  --hero-muted: #5d554b;
+  --hero-pos: #0a7d66;
+  --hero-neg: #c7381c;
+  --focus: #8fb0ff;
+  --backdrop: rgba(0, 0, 0, 0.6);
+  --shadow: 0 1px 0 rgba(0, 0, 0, 0.3), 0 12px 30px -16px rgba(0, 0, 0, 0.7);
+  --shadow-lift: 0 2px 0 rgba(0, 0, 0, 0.35), 0 24px 48px -18px rgba(0, 0, 0, 0.8);
+  color-scheme: dark;
+}
+
+/* Colores por categoría y por persona */
+.cat-compra { --c: var(--h1); }
+.cat-casa { --c: var(--h0); }
+.cat-facturas { --c: var(--h2); }
+.cat-restaurante { --c: var(--h5); }
+.cat-ocio { --c: var(--h3); }
+.cat-transporte { --c: var(--h4); }
+.cat-viaje { --c: var(--h6); }
+.cat-salud { --c: var(--h7); }
+.cat-regalos { --c: #c15ad6; }
+.cat-otros { --c: var(--ink-3); }
+
+.hue-0 { --c: var(--h0); }
+.hue-1 { --c: var(--h1); }
+.hue-2 { --c: var(--h2); }
+.hue-3 { --c: var(--h3); }
+.hue-4 { --c: var(--h4); }
+.hue-5 { --c: var(--h5); }
+.hue-6 { --c: var(--h6); }
+.hue-7 { --c: var(--h7); }

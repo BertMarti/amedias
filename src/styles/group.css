@@ -1,0 +1,222 @@
+/* ---------- Grupo ---------- */
+
+.group-screen {
+  padding-bottom: calc(var(--tabbar-h) + 104px + var(--safe-b));
+}
+
+.group-aside {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.group-title {
+  font-family: var(--font-display);
+  font-variation-settings: 'SOFT' 80;
+  font-weight: 650;
+  font-size: 1.2rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.group-main {
+  margin-top: 18px;
+  min-width: 0;
+}
+
+.btn--share {
+  justify-self: start;
+  background: var(--card);
+  border-color: var(--line);
+  box-shadow: var(--lip);
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--r-xl);
+  background: var(--hero-bg);
+  color: var(--hero-ink);
+  padding: 22px 22px 20px;
+  min-height: 170px;
+  box-shadow: var(--shadow-lift);
+}
+
+.hero-disc {
+  position: absolute;
+  z-index: -1;
+  right: -64px;
+  top: -64px;
+  transition: transform 1s cubic-bezier(0.25, 1.35, 0.4, 1);
+}
+
+.hero-content {
+  display: grid;
+  gap: 4px;
+}
+
+.hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 750;
+  color: var(--hero-muted);
+}
+
+.hero--pos .hero-label {
+  color: var(--hero-pos);
+}
+
+.hero--neg .hero-label {
+  color: var(--hero-neg);
+}
+
+.hero-amount {
+  font-family: var(--font-display);
+  font-variation-settings: 'SOFT' 100, 'opsz' 144;
+  font-weight: 700;
+  font-size: clamp(2rem, 9.5vw, 3.6rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums lining-nums;
+  white-space: nowrap;
+}
+
+.hero-meta {
+  margin-top: 10px;
+  color: var(--hero-muted);
+  font-size: 0.9rem;
+}
+
+.hero .btn {
+  justify-self: start;
+  margin-top: 10px;
+}
+
+/* Barra de pestañas: abajo en el móvil, columna en escritorio */
+.tabbar {
+  position: fixed;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 6px max(8px, env(safe-area-inset-left)) calc(6px + var(--safe-b));
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+}
+
+.tab {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-height: 54px;
+  padding: 6px 2px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--ink-3);
+  font-weight: 750;
+  font-size: 0.75rem;
+}
+
+.tab--on {
+  color: var(--ink);
+  background: var(--paper-sunk);
+}
+
+.tab--on svg {
+  color: var(--tomato);
+}
+
+.fab {
+  position: fixed;
+  z-index: 25;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(var(--tabbar-h) + 16px + var(--safe-b));
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 60px;
+  padding: 0 22px 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 800;
+  font-size: 1.05rem;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--ink) 55%, var(--tomato)), var(--shadow-lift);
+  transition: transform 0.15s ease;
+}
+
+.fab:active {
+  transform: translateY(2px);
+}
+
+.fab-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.fab-disc {
+  transition: transform 0.5s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.fab:hover .fab-disc {
+  transform: rotate(180deg);
+}
+
+.fab-plus {
+  position: absolute;
+  color: #fffdf9;
+  stroke-width: 3;
+}
+
+@media (min-width: 960px) {
+  .group-screen {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 32px;
+    padding-bottom: 120px;
+  }
+
+  .group-aside {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    padding-top: 0;
+  }
+
+  .tabbar {
+    position: static;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 6px;
+    background: transparent;
+    backdrop-filter: none;
+    border: 0;
+  }
+
+  .tab {
+    grid-auto-flow: column;
+    justify-content: start;
+    gap: 12px;
+    padding: 0 16px;
+    font-size: 1rem;
+  }
+
+  .group-main {
+    margin-top: 76px;
+  }
+
+  .fab {
+    bottom: 32px;
+    right: max(32px, calc((100vw - 1120px) / 2 + 16px));
+  }
+}

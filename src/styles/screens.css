@@ -1,0 +1,246 @@
+/* ---------- Estructura ---------- */
+
+.screen {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: calc(8px + var(--safe-t)) max(16px, env(safe-area-inset-right)) calc(40px + var(--safe-b)) max(16px, env(safe-area-inset-left));
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 60px;
+}
+
+.topbar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  box-shadow: var(--lip);
+}
+
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.panel-title {
+  font-family: var(--font-display);
+  font-variation-settings: 'SOFT' 80;
+  font-weight: 650;
+  font-size: 1.3rem;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.panel-head .panel-title {
+  margin: 0;
+}
+
+/* ---------- Inicio ---------- */
+
+.home {
+  max-width: 760px;
+}
+
+.empty {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 12px 0 28px;
+}
+
+.empty .stack {
+  display: grid;
+  gap: 10px;
+  width: min(100%, 380px);
+  margin-top: 8px;
+}
+
+.empty-art {
+  width: min(100%, 340px);
+  height: auto;
+  margin: 4px 0 -4px;
+}
+
+.art-fill-a {
+  fill: var(--tomato);
+}
+
+.art-fill-b {
+  fill: var(--mint);
+}
+
+.art-chip {
+  fill: var(--ink);
+  opacity: 0.85;
+}
+
+.art-crumb {
+  fill: var(--saffron);
+}
+
+.art-shadow {
+  fill: var(--paper-sunk);
+}
+
+.art-spark {
+  fill: var(--saffron);
+}
+
+.art-spark--b {
+  fill: var(--tomato);
+}
+
+.art-dot {
+  fill: var(--mint);
+}
+
+.art-dot--b {
+  fill: var(--h3);
+}
+
+.art-half {
+  transform-box: fill-box;
+  animation: art-in 0.9s cubic-bezier(0.2, 0.9, 0.2, 1.15) both;
+}
+
+.art-half--b {
+  animation-delay: 0.08s;
+}
+
+@keyframes art-in {
+  from {
+    translate: 0 14px;
+    opacity: 0;
+  }
+}
+
+.home-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0 16px;
+}
+
+.home-head-disc {
+  transform: rotate(-20deg);
+}
+
+.group-list {
+  display: grid;
+  gap: 12px;
+}
+
+.group-card,
+.candidate {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: var(--card);
+  text-align: left;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.group-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+
+.group-card:active {
+  transform: translateY(0);
+}
+
+.group-emoji {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  font-size: 1.65rem;
+  /* El motivo: el fondo del emoji es un círculo partido en diagonal. */
+  background: linear-gradient(135deg, var(--tomato-soft) 0 50%, var(--mint-soft) 50% 100%);
+}
+
+.group-card-main,
+.candidate-main {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+}
+
+.group-card-name {
+  font-family: var(--font-display);
+  font-variation-settings: 'SOFT' 80;
+  font-weight: 650;
+  font-size: 1.2rem;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.group-card-meta {
+  color: var(--ink-2);
+  font-size: 0.875rem;
+}
+
+.group-card-status {
+  flex: none;
+}
+
+.home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.home-actions .btn {
+  flex: 1 1 200px;
+}
+
+.home-foot {
+  margin-top: 36px;
+  color: var(--ink-3);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+@media (min-width: 720px) {
+  .group-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 380px) {
+  .group-card {
+    flex-wrap: wrap;
+  }
+
+  .group-card-status {
+    width: 100%;
+    padding-left: 68px;
+  }
+}

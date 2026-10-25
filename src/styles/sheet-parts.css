@@ -1,0 +1,331 @@
+/* ---------- Nuevo grupo, personas ---------- */
+
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 8px;
+}
+
+.emoji-opt {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  min-height: 44px;
+  border-radius: 16px;
+  font-size: 1.5rem;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  cursor: pointer;
+}
+
+.emoji-opt input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.emoji-opt:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.emoji-opt--on {
+  border-color: var(--ink);
+  background: linear-gradient(135deg, var(--tomato-soft) 0 50%, var(--mint-soft) 50% 100%);
+  transform: scale(1.04);
+}
+
+.people-edit,
+.member-list,
+.pick-list,
+.candidates {
+  display: grid;
+  gap: 8px;
+}
+
+.person-row,
+.member-row,
+.add-person,
+.input-with-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.person-row .input,
+.member-row .input,
+.add-person .input,
+.input-with-btn .input {
+  flex: 1;
+}
+
+.me-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1.5px dashed var(--line-strong);
+  font-size: 0.85rem;
+  font-weight: 750;
+  color: var(--ink-3);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.me-toggle input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.me-toggle:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+}
+
+.me-toggle--on {
+  border-style: solid;
+  border-color: var(--mint);
+  background: var(--mint-soft);
+  color: var(--mint-ink);
+}
+
+.member-row .btn {
+  flex: none;
+}
+
+.danger-zone {
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.pick {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  font-weight: 750;
+  font-size: 1.05rem;
+  text-align: left;
+}
+
+.pick > span:not(.avatar) {
+  flex: 1;
+}
+
+.pick--on {
+  border-color: var(--mint);
+}
+
+/* ---------- Compartir, abrir ---------- */
+
+.share-intro {
+  padding: 16px;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, var(--tomato-soft) 0 50%, var(--mint-soft) 50% 100%);
+  font-weight: 600;
+}
+
+.share-result {
+  display: grid;
+  gap: 12px;
+}
+
+.qr {
+  margin: 4px 0 0;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  color: var(--ink-2);
+  font-size: 0.875rem;
+}
+
+.qr img {
+  width: min(280px, 100%);
+  height: auto;
+  border-radius: 18px;
+  border: 10px solid #fff;
+  box-shadow: var(--shadow);
+  image-rendering: pixelated;
+}
+
+.warning,
+.error-box,
+.lock-intro {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.warning,
+.lock-intro {
+  background: var(--saffron-soft);
+}
+
+.error-box {
+  background: var(--tomato-soft);
+  color: var(--ink);
+}
+
+.warning svg,
+.error-box svg,
+.lock-intro svg {
+  flex: none;
+}
+
+.file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.file-input:focus-visible + .file-btn {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.file-btn {
+  cursor: pointer;
+}
+
+.or {
+  text-align: center;
+  color: var(--ink-3);
+  font-weight: 700;
+}
+
+.candidate {
+  box-shadow: var(--lip);
+  align-items: flex-start;
+}
+
+.candidate .pill {
+  flex: none;
+}
+
+.candidate-diff {
+  margin-top: 4px;
+  font-weight: 750;
+  color: var(--mint-ink);
+}
+
+/* Lo que borra, cambia la moneda o impide fusionar. */
+.diff-bad {
+  color: var(--tomato-ink);
+}
+
+.loading {
+  padding: 24px 0;
+  text-align: center;
+  color: var(--ink-2);
+  font-weight: 700;
+}
+
+.about {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  padding: 18px;
+  border-radius: var(--r-lg);
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+
+/* ---------- Avisos ---------- */
+
+.toasts {
+  position: fixed;
+  z-index: 90;
+  left: 0;
+  right: 0;
+  top: calc(10px + var(--safe-t));
+  display: grid;
+  justify-items: center;
+  pointer-events: none;
+  padding: 0 16px;
+}
+
+.toast-region {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+}
+
+.toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 520px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 700;
+  font-size: 0.92rem;
+  box-shadow: var(--shadow-lift);
+  animation: toast-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+}
+
+.toast--ok svg {
+  color: var(--mint);
+}
+
+.toast--info svg {
+  color: var(--saffron);
+}
+
+.toast--error {
+  background: var(--tomato);
+  color: var(--on-accent);
+  border-radius: var(--r-md);
+}
+
+@keyframes toast-in {
+  from {
+    transform: translateY(-16px) scale(0.96);
+    opacity: 0;
+  }
+}
+
+.banner {
+  position: fixed;
+  z-index: 80;
+  left: 12px;
+  right: 12px;
+  bottom: calc(var(--tabbar-h) + 90px + var(--safe-b));
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  background: var(--tomato);
+  color: var(--on-accent);
+  font-weight: 700;
+  box-shadow: var(--shadow-lift);
+}
+
+/* Datos apartados en Ajustes */
+.damaged-box {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--tomato-soft);
+  color: var(--ink);
+}

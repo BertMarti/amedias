@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>a medias · banner</title>
+<style>
+@font-face { font-family: Fraunces; font-weight: 100 900; src: url(../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2); }
+@font-face { font-family: Manrope; font-weight: 200 800; src: url(../../node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2); }
+* { margin: 0; box-sizing: border-box; }
+html, body { width: 1280px; height: 640px; overflow: hidden; background: #FBF7F0; }
+body { position: relative; font-family: Manrope, sans-serif; color: #1D1A16; }
+.grano { position: absolute; inset: 0; opacity: .5;
+  background: radial-gradient(60% 60% at 85% 20%, rgba(255,90,60,.16), transparent 70%),
+              radial-gradient(50% 60% at 70% 95%, rgba(23,184,151,.16), transparent 70%); }
+.texto { position: absolute; left: 88px; top: 118px; width: 640px; }
+.marca { display: flex; align-items: center; gap: 22px; }
+.logo { width: 92px; height: 92px; }
+h1 { font: 700 112px/1 Fraunces, serif; letter-spacing: -.02em; font-variation-settings: "SOFT" 100, "WONK" 1; }
+.tag { margin-top: 30px; font-size: 31px; line-height: 1.32; font-weight: 600; color: #3a342c; }
+.tag em { font-style: normal; color: #FF5A3C; }
+.chips { margin-top: 34px; display: flex; gap: 12px; flex-wrap: wrap; }
+.chip { font: 700 16px/1 Manrope; padding: 11px 16px; border-radius: 999px; background: #fff; border: 1.5px solid #1D1A16; box-shadow: 3px 3px 0 #1D1A16; }
+.chip.m { background: #DDF6EE; } .chip.t { background: #FFE5DE; }
+.movil { position: absolute; right: 96px; top: 64px; width: 330px; height: 560px; border-radius: 42px; background: #fff;
+  border: 2px solid #1D1A16; box-shadow: 10px 10px 0 #1D1A16; padding: 26px 22px; transform: rotate(3deg); }
+.movil h2 { font: 700 26px/1.1 Fraunces; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.casa { width: 26px; height: 26px; fill: #FF5A3C; stroke: #1D1A16; stroke-width: 1.6; stroke-linejoin: round; }
+.movil .sub { font-size: 14px; color: #6b6257; margin-bottom: 18px; }
+.saldo { display: flex; justify-content: space-between; align-items: center; padding: 13px 14px; border-radius: 16px; margin-bottom: 10px; font-weight: 700; font-size: 16px; }
+.saldo b { font: 700 22px Fraunces; font-variant-numeric: tabular-nums; }
+.saldo.m { background: #DDF6EE; } .saldo.m b { color: #0E8A70; }
+.saldo.t { background: #FFE5DE; } .saldo.t b { color: #D8381C; }
+.saldo.n { background: #F3EEE6; } .saldo.n b { color: #6b6257; }
+.pago { margin-top: 16px; border: 1.5px dashed #1D1A16; border-radius: 16px; padding: 14px; font-size: 15px; font-weight: 600; }
+.pago span { display: block; font: 700 21px Fraunces; margin-top: 4px; }
+.fab { position: absolute; right: 22px; bottom: 24px; background: #FF5A3C; color: #fff; font: 800 17px Manrope; padding: 15px 20px; border-radius: 999px; border: 2px solid #1D1A16; box-shadow: 4px 4px 0 #1D1A16; }
+.pie { position: absolute; left: 88px; bottom: 50px; font: 600 15px Manrope; color: #8a8073; letter-spacing: .02em; }
+</style>
+</head>
+<body>
+<div class="grano"></div>
+<div class="texto">
+  <div class="marca">
+    <svg class="logo" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="46" fill="#17B897" stroke="#1D1A16" stroke-width="4"/>
+      <path d="M17.5 82.5 A46 46 0 0 1 82.5 17.5 Z" fill="#FF5A3C"/>
+      <circle cx="50" cy="50" r="46" fill="none" stroke="#1D1A16" stroke-width="4"/>
+      <line x1="17.5" y1="82.5" x2="82.5" y2="17.5" stroke="#1D1A16" stroke-width="4"/>
+    </svg>
+    <h1>a medias</h1>
+  </div>
+  <p class="tag">Reparte los gastos del piso, la pareja o el viaje <em>sin cuentas, sin anuncios y sin límites</em>.</p>
+  <div class="chips">
+    <span class="chip m">Gratis para siempre</span><span class="chip">Sin conexión</span><span class="chip t">Sin registro</span><span class="chip">Importa Splitwise</span>
+  </div>
+</div>
+<div class="movil">
+  <h2><svg class="casa" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg> Piso Lavapiés</h2>
+  <p class="sub">3 personas · octubre</p>
+  <div class="saldo m">Ana <b>+40,00 €</b></div>
+  <div class="saldo n">Luis <b>0,00 €</b></div>
+  <div class="saldo t">Marta <b>−40,00 €</b></div>
+  <div class="pago">Para quedar en paz<span>Marta → Ana · 40,00 €</span></div>
+  <div class="fab">+ Gasto</div>
+</div>
+<div class="pie">bertmarti.github.io/amedias</div>
+</body>
+</html>

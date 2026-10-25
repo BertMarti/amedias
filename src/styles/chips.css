@@ -1,0 +1,265 @@
+/* ---------- Chips ---------- */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 4px 14px 4px 6px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--card);
+  font-weight: 650;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+
+.chip input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.chip:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.chip-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chip--on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.chip--on .chip-label::after {
+  content: '';
+  width: 7px;
+  height: 12px;
+  border: solid currentColor;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg) translate(-1px, -2px);
+  margin-left: 2px;
+}
+
+.chip-hint {
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+.chip--action {
+  padding: 4px 16px;
+  border-style: dashed;
+  background: transparent;
+}
+
+.chips--cats .chip {
+  padding-left: 12px;
+}
+
+.chips--cats .chip svg {
+  color: var(--c);
+}
+
+.chips--cats .chip--on {
+  background: color-mix(in srgb, var(--c) 18%, var(--card));
+  border-color: var(--c);
+  color: var(--ink);
+}
+
+/* ---------- Avatar, estado, pastillas ---------- */
+
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--c);
+  color: #fffdf9;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.avatar--sm {
+  width: 30px;
+  height: 30px;
+  font-size: 0.85rem;
+}
+
+.avatar--lg {
+  width: 52px;
+  height: 52px;
+  font-size: 1.4rem;
+}
+
+.avatar--me {
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--ink);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 750;
+}
+
+.status--pos {
+  color: var(--mint-ink);
+}
+
+.status--neg {
+  color: var(--tomato-ink);
+}
+
+.status--zero {
+  color: var(--ink-3);
+}
+
+.status--compact {
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.pill--offline {
+  background: var(--saffron-soft);
+  color: var(--ink);
+}
+
+.pill--mint {
+  background: var(--mint-soft);
+  color: var(--mint-ink);
+}
+
+.pill--tomato {
+  background: var(--tomato-soft);
+  color: var(--tomato-ink);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--paper-sunk);
+  font-size: 0.75rem;
+  vertical-align: 1px;
+}
+
+.cat-tile {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 16%, var(--card));
+}
+
+.cat-tile--sm {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+}
+
+.cat-tile--transfer {
+  --c: var(--mint);
+  background: transparent;
+  border: 1.5px dashed var(--line-strong);
+}
+
+/* ---------- Segmentados ---------- */
+
+.segmented {
+  display: inline-flex;
+  padding: 4px;
+  gap: 2px;
+  background: var(--paper-sunk);
+  border-radius: 999px;
+}
+
+.segmented--wide {
+  display: flex;
+}
+
+.segmented > button,
+.seg-radio {
+  flex: 1;
+  position: relative;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.segmented > button[aria-pressed='true'],
+.seg-radio--on {
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.seg-radio input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.seg-radio:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

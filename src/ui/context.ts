@@ -1,0 +1,73 @@
+import { createContext, useContext } from 'react';
+import type { Group, Settings } from '../core';
+
+export type Tab = 'gastos' | 'saldos' | 'resumen' | 'fijos';
+
+export interface ConfirmSpec {
+  title: string;
+  body?: string;
+  confirmLabel: string;
+  danger?: boolean;
+  onConfirm: () => void;
+}
+
+export type IncomingSource =
+  | { kind: 'link'; payload: string }
+  | { kind: 'groups'; groups: Group[]; note?: string; restore?: boolean };
+
+/** Capas de navegación: la pantalla de grupo y las hojas que se abren encima. Cada una es una entrada del historial. */
+export type Layer =
+  | { t: 'group'; id: string; tab: Tab }
+  | { t: 'newGroup' }
+  | { t: 'expense'; groupId: string; expenseId?: string; kind?: 'expense' | 'transfer' }
+  | { t: 'recurring'; groupId: string; recurringId?: string }
+  | { t: 'groupSettings'; groupId: string }
+  | { t: 'whoami'; groupId: string }
+  | { t: 'share'; groupId: string }
+  | { t: 'import'; restore?: boolean }
+  | { t: 'incoming'; source: IncomingSource }
+  | { t: 'settings' }
+  | ({ t: 'confirm' } & ConfirmSpec);
+
+export type ToastTone = 'ok' | 'info' | 'error';
+
+export interface AppApi {
+  groups: Group[];
+  settings: Settings;
+  online: boolean;
+  /** Aplica un cambio a un grupo y lo guarda. */
+  commit: (groupId: string, fn: (g: Group) => Group) => void;
+  /** Añade grupos nuevos o fusiona con los que ya existen (mismo id). */
+  addOrMerge: (list: Group[]) => { added: number; merged: number; rejected: number };
+  removeGroup: (id: string) => void;
+  removeAll: () => void;
+  setSettings: (patch: Partial<Settings>) => void;
+  setMe: (groupId: string, memberId: string) => void;
+  layers: Layer[];
+  push: (layer: Layer) => void;
+  pop: (n?: number) => void;
+  setLayers: (next: Layer[]) => void;
+  openGroup: (id: string, extra?: Layer[]) => void;
+  setTab: (tab: Tab) => void;
+  goHome: () => void;
+  toast: (text: string, tone?: ToastTone) => void;
+  confirm: (spec: ConfirmSpec) => void;
+  /** Id del último gasto añadido (para animarlo). */
+  highlight: string | null;
+  setHighlight: (id: string | null) => void;
+  /** Se incrementa al quedar todo saldado tras marcar un pago (dispara el confeti). */
+  celebrate: number;
+  triggerCelebrate: () => void;
+}
+
+export const AppContext = createContext<AppApi | null>(null);
+
+export function useApp(): AppApi {
+  const v = useContext(AppContext);
+  if (!v) throw new Error('AppContext');
+  return v;
+}
+
+export function useGroup(id: string): Group | undefined {
+  return useApp().groups.find((g) => g.id === id);
+}

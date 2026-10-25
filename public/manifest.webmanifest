@@ -1,0 +1,21 @@
+{
+  "name": "a medias",
+  "short_name": "a medias",
+  "description": "Reparte gastos de piso, pareja o viaje sin cuenta, sin anuncios y sin conexión.",
+  "lang": "es",
+  "dir": "ltr",
+  "id": "/amedias/",
+  "start_url": "/amedias/",
+  "scope": "/amedias/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#FBF7F0",
+  "background_color": "#FBF7F0",
+  "categories": ["finance", "productivity", "utilities"],
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
