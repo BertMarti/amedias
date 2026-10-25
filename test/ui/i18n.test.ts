@@ -16,3 +16,9 @@ describe('diccionarios', () => {
     for (const k of Object.keys(es) as (keyof typeof es)[]) expect(vars(en[k]), k).toEqual(vars(es[k]));
   });
 });
+
+describe('P2: con contraseña, nada del grupo viaja en claro', () => {
+  it('el mensaje de un enlace cifrado no lleva el nombre del grupo', () => {
+    for (const dict of [es, en]) expect(dict['share.messageLocked']).not.toContain('{name}');
+  });
+});

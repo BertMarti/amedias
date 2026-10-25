@@ -24,7 +24,7 @@ const enc = new TextEncoder();
 
 export class ShareError extends Error {
   constructor(
-    readonly code: 'format' | 'too_large' | 'passphrase_required' | 'wrong_passphrase' | 'invalid',
+    readonly code: 'format' | 'too_large' | 'passphrase_required' | 'wrong_passphrase' | 'invalid' | 'unsupported',
     message: string,
   ) {
     super(message);
@@ -80,8 +80,25 @@ async function aesKey(passphrase: string, salt: Uint8Array<ArrayBuffer>): Promis
   );
 }
 
+/**
+ * ¿Sabe este navegador comprimir y descomprimir `deflate-raw`? (Safari < 16.4, Chrome < 103 y Firefox < 113 no.)
+ * Sin esto, un enlace válido parecería dañado y la persona pediría otro que tampoco abriría.
+ */
+export function supportsLinks(): boolean {
+  try {
+    new DecompressionStream('deflate-raw');
+    new CompressionStream('deflate-raw');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const unsupported = () => new ShareError('unsupported', 'Este navegador es demasiado antiguo para los enlaces');
+
 /** Grupo → texto para el fragmento del enlace. */
 export async function encodeGroup(group: Group, passphrase?: string): Promise<string> {
+  if (!supportsLinks()) throw unsupported();
   const deflated = await pipe(enc.encode(JSON.stringify(group)), new CompressionStream('deflate-raw'), MAX_JSON_BYTES);
   if (!passphrase) return `1.${b64url(deflated)}`;
   const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -108,6 +125,7 @@ export async function decodeGroup(payload: string, passphrase?: string): Promise
   if (payload.length > MAX_PAYLOAD_CHARS) throw new ShareError('too_large', 'El enlace es demasiado grande');
   const kind = payloadKind(payload);
   if (!kind) throw new ShareError('format', 'No es un enlace de Repartito');
+  if (!supportsLinks()) throw unsupported();
   let bytes = fromB64url(payload.slice(kind === 'plain' ? 2 : 3));
   if (kind === 'encrypted') {
     if (!passphrase) throw new ShareError('passphrase_required', 'Este enlace tiene contraseña');

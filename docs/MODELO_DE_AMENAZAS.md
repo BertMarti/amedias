@@ -44,7 +44,7 @@ navegador de cada persona. Análisis STRIDE de lo que sí puede salir mal.
 | D3 | Almacenamiento lleno o dañado | Error visible al guardar; al cargar se apartan los grupos dañados sin perder los demás. La copia en bruto se guarda con fecha (las 3 últimas) y se puede descargar desde Ajustes. | `storage.ts`, `store.ts`, `SettingsSheet.tsx`, test F11 |
 | D4 | Abrir `…/repartito/icon.svg` (o cualquier otra ruta) sustituía la copia sin conexión de la app | El service worker solo guarda como app la propia `index.html`, y solo si su huella SHA-256 coincide con la publicada. | `public/sw.js`, test manual |
 | D5 | Lista con miles de gastos que atasca el móvil | Se pintan de 150 en 150 («Ver más»); los totales del mes se calculan con todos. | `ExpensesTab.tsx` |
-| I6 | **Origen compartido**: todas las webs de `bertmarti.github.io/*` (otros proyectos del mismo autor) son el mismo origen y comparten `localStorage`; un XSS en cualquiera de ellas podría leer o escribir los grupos | Las demás webs del origen son del mismo autor, sin servidor, con CSP estricta y revisión de seguridad; ninguna lee estas claves. Para aislarlo del todo: dominio propio (subdominio) para Repartito (PLAN v0.2). | PLAN |
+| I6 | **Origen compartido**: todas las webs de `bertmarti.github.io/*` (otros proyectos del mismo autor) son el mismo origen y comparten `localStorage`; un XSS en cualquiera de ellas podría leer o escribir los grupos | Las demás webs del origen son del mismo autor y todas tienen `script-src 'self'` sin `unsafe-*`, pero **no todas son tan estrictas** como esta: alguna se conecta a servidores externos (p. ej. un juego en línea por WebSocket), permite estilos en línea o `wasm-unsafe-eval`, y ninguna más usa Trusted Types. No existe el sitio raíz `bertmarti.github.io`, así que nadie puede registrar un service worker en `/`. Riesgo bajo pero real. Arreglo de fondo: origen propio (subdominio u organización `repartito`, PLAN v0.3); la app de Android ya lo tiene (A1). | PLAN, revisión externa P1 |
 | I7 | El mismo origen comparte también la **Cache API** y los service workers: otra página podría escribir un script falso en la caché de la app | Al compilar se inyecta en `sw.js` el SHA-256 de cada archivo publicado; nada se guarda ni se sirve desde la caché si su huella no coincide (se borra y se pide a la red). Cada despliegue estrena cachés. Riesgo restante: anular el registro del service worker (solo afecta al modo sin conexión). | `vite.config.ts` (`swIntegrity`), `public/sw.js`, test manual |
 | E1 | Enmarcar la app (clickjacking) | Sin acciones peligrosas de un clic; GitHub Pages no permite cabeceras, así que `frame-ancestors` no aplica (riesgo aceptado, bajo). | — |
 | SC1 | Dependencia comprometida | Pocas dependencias, todas de build; `ignore-scripts=true`; `npm audit`, revisión de dependencias y Dependabot con 7 días de espera. La imagen de Node de `dk.sh` va fijada por digest. | `.npmrc`, `ci.yml`, `dependabot.yml`, `dk.sh` |
@@ -65,6 +65,17 @@ La app de Android ([docs/ANDROID.md](ANDROID.md)) es la misma web dentro de un A
 | A7 | APK manipulado o firmado por otro | Firma con una clave que solo vive en un entorno de GitHub restringido a etiquetas `v*`; el CI verifica la huella del certificado; atestación de procedencia y `SHA256SUMS.txt` en cada release. | `android.yml`, `docs/ANDROID.md` |
 | A8 | Gradle o su wrapper comprometidos | `wrapper-validation` y `distributionSha256Sum` fijado; actions por SHA. | `android.yml`, `gradle-wrapper.properties` |
 | A9 | El build web arrastra código nativo | Los plugins de Capacitor se sustituyen por un módulo vacío en la web. | `vite.config.ts`, `native-stub.ts` |
+
+## Revisión externa (después de la v0.2.0)
+
+Otra sesión revisó el código en solo lectura buscando lo que no cubrían F1-F15 ni A1-A9:
+
+| ID | Gravedad | Hallazgo | Resolución |
+|---|---|---|---|
+| P1 | baja | I6 describía las webs hermanas como más estrictas de lo que son. | I6 corregido; origen propio adelantado al PLAN v0.3. |
+| P2 | baja | Con enlace cifrado, el **nombre del grupo** viajaba en claro en el mensaje y en la vista previa del chat. | El mensaje y el título ya no lo llevan cuando hay contraseña (test). |
+| P3 | baja | En navegadores sin `deflate-raw` (Safari < 16.4, Chrome < 103, Firefox < 113) un enlace válido parecía dañado. | Se detecta y se explica que hay que actualizar el navegador, sin pedir otro enlace (test). |
+| P4 | baja | «Borrar todo» no borraba restos con el nombre antiguo (`amedias:v1:*`). | Ahora sí (test). |
 
 ## Riesgos aceptados
 
