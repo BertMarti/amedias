@@ -50,3 +50,11 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 - CodeQL avisó de `js/unvalidated-dynamic-method-call` en `scripts/brand/render.mjs` (herramienta local): corregido.
 - Avisos de Scorecard aceptados por ahora (proyecto de una persona): protección de rama, revisión de código, fuzzing, insignia CII.
 - Tarjetas 640×400 para el perfil enviadas a la sesión «Revisión de repositorios GitHub», que las publica con su propia PR.
+
+## v0.2.0 publicada (2026-10-25)
+
+- **Nuevo nombre, Repartito**, por las apps «A medias» ya existentes en App Store y Google Play. Repo renombrado a `BertMarti/repartito` (GitHub redirige el antiguo); web en `/repartito/` (la ruta `/amedias/` da 404).
+- Release v0.2.0 con `repartito-v0.2.0.apk`, `.aab` y `SHA256SUMS.txt`: firmados en el entorno `android-release`, huella del certificado verificada en el CI, atestaciones de procedencia comprobadas por la API.
+- Web publicada comprobada: service worker en `/repartito/`, cachés `amedias-*` antiguas borradas, consola limpia.
+- El `gh` del equipo de desarrollo (2.46) no tiene `gh attestation`: se comprueba con `gh api repos/BertMarti/repartito/attestations/sha256:<huella>`.
+- Pendiente (PLAN v0.3): App Links para abrir los `#g=` en la app (necesita `assetlinks.json` en la raíz del dominio) y Google Play (cuenta de desarrollador del autor).
