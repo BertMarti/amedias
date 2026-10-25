@@ -63,12 +63,12 @@ El APK de depuración queda en `android/app/build/outputs/apk/debug/`. Iconos y 
 
 ```bash
 sha256sum -c SHA256SUMS.txt
-gh attestation verify amedias-v0.2.0.apk -R BertMarti/amedias
-apksigner verify --print-certs amedias-v0.2.0.apk
+gh attestation verify repartito-v0.2.0.apk -R BertMarti/repartito
+apksigner verify --print-certs repartito-v0.2.0.apk
 ```
 
 El certificado tiene que tener la huella SHA-256
-`cc:e8:23:9b:eb:0e:b7:92:57:02:32:eb:7d:10:ce:f9:46:a4:9f:3a:10:d1:4b:21:c9:7a:7b:5d:c1:3c:ac:65`.
+`5a:5b:27:42:59:e6:d3:0b:ed:71:7d:24:c0:18:e7:10:73:bc:8d:23:90:2d:db:ad:9d:80:ea:4f:4e:65:bb:be`.
 
 ## Pendiente
 

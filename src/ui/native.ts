@@ -7,7 +7,7 @@
 export const NATIVE = import.meta.env.MODE === 'android';
 
 /** Dirección pública de la web. Dentro de la app el origen es `https://localhost`, que no sirve para compartir. */
-export const PUBLIC_URL = 'https://bertmarti.github.io/amedias/';
+export const PUBLIC_URL = 'https://bertmarti.github.io/repartito/';
 
 /** Base para los enlaces que se comparten: siempre una dirección que cualquiera pueda abrir. */
 export function appUrl(): string {

@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Informar de una vulnerabilidad
-    url: https://github.com/BertMarti/amedias/security/advisories/new
+    url: https://github.com/BertMarti/repartito/security/advisories/new
     about: Informe privado, nunca en un issue público.

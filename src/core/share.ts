@@ -10,6 +10,12 @@
 import type { Group } from './types';
 import { parseGroup } from './validate';
 
+/**
+ * Datos asociados de AES-GCM de los enlaces cifrados (protocolo v1). Es un identificador del protocolo, no la
+ * marca: no cambia con el nombre de la app, para que los enlaces ya enviados se sigan abriendo.
+ */
+const AAD = 'amedias/1e';
+
 export const MAX_PAYLOAD_CHARS = 1_500_000; // ~1,1 MB comprimidos: miles de gastos
 export const MAX_JSON_BYTES = 8 * 1024 * 1024; // tope al descomprimir (contra bombas de descompresión)
 export const QR_MAX_CHARS = 2000; // más largo no cabe en un QR legible
@@ -81,7 +87,7 @@ export async function encodeGroup(group: Group, passphrase?: string): Promise<st
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const sealed = new Uint8Array(
-    await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: enc.encode('amedias/1e') }, await aesKey(passphrase, salt), deflated),
+    await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: enc.encode(AAD) }, await aesKey(passphrase, salt), deflated),
   );
   const out = new Uint8Array(salt.length + iv.length + sealed.length);
   out.set(salt);
@@ -90,7 +96,7 @@ export async function encodeGroup(group: Group, passphrase?: string): Promise<st
   return `1e.${b64url(out)}`;
 }
 
-/** ¿El texto necesita contraseña? `null` si no parece un enlace de «a medias». */
+/** ¿El texto necesita contraseña? `null` si no parece un enlace de Repartito. */
 export function payloadKind(payload: string): 'plain' | 'encrypted' | null {
   if (payload.startsWith('1.')) return 'plain';
   if (payload.startsWith('1e.')) return 'encrypted';
@@ -101,7 +107,7 @@ export function payloadKind(payload: string): 'plain' | 'encrypted' | null {
 export async function decodeGroup(payload: string, passphrase?: string): Promise<Group> {
   if (payload.length > MAX_PAYLOAD_CHARS) throw new ShareError('too_large', 'El enlace es demasiado grande');
   const kind = payloadKind(payload);
-  if (!kind) throw new ShareError('format', 'No es un enlace de «a medias»');
+  if (!kind) throw new ShareError('format', 'No es un enlace de Repartito');
   let bytes = fromB64url(payload.slice(kind === 'plain' ? 2 : 3));
   if (kind === 'encrypted') {
     if (!passphrase) throw new ShareError('passphrase_required', 'Este enlace tiene contraseña');
@@ -109,7 +115,7 @@ export async function decodeGroup(payload: string, passphrase?: string): Promise
     try {
       const key = await aesKey(passphrase, bytes.slice(0, 16));
       bytes = new Uint8Array(
-        await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes.slice(16, 28), additionalData: enc.encode('amedias/1e') }, key, bytes.slice(28)),
+        await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes.slice(16, 28), additionalData: enc.encode(AAD) }, key, bytes.slice(28)),
       );
     } catch {
       throw new ShareError('wrong_passphrase', 'Contraseña incorrecta o enlace dañado');
@@ -130,7 +136,7 @@ export async function decodeGroup(payload: string, passphrase?: string): Promise
   }
 }
 
-/** Enlace completo para compartir. `base` = dirección de la app (p. ej. https://usuario.github.io/amedias/). */
+/** Enlace completo para compartir. `base` = dirección de la app (p. ej. https://usuario.github.io/repartito/). */
 export const shareUrl = (base: string, payload: string): string => `${base.replace(/#.*$/, '')}#g=${payload}`;
 
 /** Extrae el payload de `location.hash` (`#g=…`), o `null`. */

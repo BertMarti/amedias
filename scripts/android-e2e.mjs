@@ -6,7 +6,7 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
-const APP = 'io.github.bertmarti.amedias';
+const APP = 'io.github.bertmarti.repartito';
 const OUT = process.argv[2] ?? 'e2e';
 mkdirSync(OUT, { recursive: true });
 
@@ -78,14 +78,14 @@ const boot = await ev(`return {
 };`);
 check(boot.origin === 'https://localhost', `origen propio de la app (${boot.origin})`);
 check(boot.native, 'Capacitor detecta la plataforma nativa');
-check(boot.csp.includes("require-trusted-types-for 'script'") && boot.csp.includes('trusted-types amedias-sw'), 'CSP con Trusted Types');
+check(boot.csp.includes("require-trusted-types-for 'script'") && boot.csp.includes('trusted-types repartito-sw'), 'CSP con Trusted Types');
 check(boot.sw === 0, 'sin service worker en la app');
 check(boot.h.length > 0, `pantalla de inicio («${boot.h}»)`);
 
 await ev(`${H} await click(/^(Probar con un grupo de ejemplo|Try a sample group)$/);`);
 await sleep(1000);
 shot('02-grupo');
-const group = await ev(`return { title: document.querySelector('h1, h2')?.textContent ?? '', saved: (localStorage.getItem('amedias:v1:grupos') || '').length };`);
+const group = await ev(`return { title: document.querySelector('h1, h2')?.textContent ?? '', saved: (localStorage.getItem('repartito:v1:grupos') || '').length };`);
 check(group.saved > 100, 'el grupo de ejemplo se guarda en el almacenamiento de la app');
 
 await ev(`${H} await click(/^(Saldos|Balances)$/);`);
@@ -94,7 +94,7 @@ shot('03-saldos');
 await ev(`${H} await click(/^(Compartir y sincronizar|Share and sync)$/); await click(/^(Crear enlace|Create link)$/); await new Promise((r) => setTimeout(r, 1500));`);
 shot('04-compartir');
 const link = await ev(`return [...document.querySelectorAll('.sheet input')].map((i) => i.value).find((v) => v.includes('#g=')) ?? '';`);
-check(link.startsWith('https://bertmarti.github.io/amedias/#g=1.'), 'el enlace compartido apunta a la web pública');
+check(link.startsWith('https://bertmarti.github.io/repartito/#g=1.'), 'el enlace compartido apunta a la web pública');
 
 ws.close();
 check(problems.length === 0, `consola sin errores${problems.length ? ':\n  ' + problems.join('\n  ') : ''}`);

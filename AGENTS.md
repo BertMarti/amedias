@@ -1,4 +1,4 @@
-# AGENTS.md · a medias
+# AGENTS.md · Repartito
 
 Instrucciones para agentes de IA (Claude Code, OpenCode, Codex…) y personas que contribuyan.
 
@@ -7,7 +7,7 @@ Instrucciones para agentes de IA (Claude Code, OpenCode, Codex…) y personas qu
 PWA gratuita para **repartir gastos** de piso, pareja o viaje: sin cuenta, sin anuncios, sin límites y sin
 conexión. Los datos viven en el navegador. Se colabora enviando un **enlace** que se fusiona con la copia
 de cada persona (ver [docs/SINCRONIZACION.md](docs/SINCRONIZACION.md)). Publicada en GitHub Pages:
-<https://bertmarti.github.io/amedias/>.
+<https://bertmarti.github.io/repartito/>.
 
 ## Tecnología
 
@@ -25,7 +25,7 @@ de cada persona (ver [docs/SINCRONIZACION.md](docs/SINCRONIZACION.md)). Publicad
 | Instalar | `npm ci` (`.npmrc` impide scripts de instalación) |
 | Desarrollo | `npm run dev` |
 | Todo el control de calidad | `npm run check` (lint + tipos + tests) |
-| Build | `npm run build` (sale en `dist/`, base `/amedias/`) |
+| Build | `npm run build` (sale en `dist/`, base `/repartito/`) |
 | App de Android | `npm run build:android`, luego `cd android && ./gradlew assembleDebug` |
 
 ## Estructura

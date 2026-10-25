@@ -1,4 +1,4 @@
-package io.github.bertmarti.amedias;
+package io.github.bertmarti.repartito;
 
 import com.getcapacitor.BridgeActivity;
 

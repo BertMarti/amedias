@@ -10,7 +10,7 @@
 ## Cómo informar de una vulnerabilidad
 
 **No abras un issue público.** Usa el informe privado de GitHub:
-<https://github.com/BertMarti/amedias/security/advisories/new>.
+<https://github.com/BertMarti/repartito/security/advisories/new>.
 
 Incluye la versión o el commit, los pasos para reproducirlo y el impacto. Si puedes, no adjuntes datos de gastos reales.
 

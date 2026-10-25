@@ -5,8 +5,32 @@
 import type { Group } from './types';
 import { parseGroup } from './validate';
 
-const KEY = 'amedias:v1:grupos';
-const SETTINGS = 'amedias:v1:ajustes';
+const PREFIX = 'repartito:v1:';
+const KEY = `${PREFIX}grupos`;
+const SETTINGS = `${PREFIX}ajustes`;
+/** Prefijo de la v0.1.0, cuando la app se llamaba «a medias» (mismo origen en GitHub Pages). */
+const LEGACY_PREFIX = 'amedias:v1:';
+
+/**
+ * Pasa los datos guardados con el nombre antiguo al nuevo, sin pisar nada: si la clave nueva ya existe, la
+ * antigua se deja como está. Devuelve cuántas claves movió.
+ */
+export function migrateLegacyStorage(storage: Storage = localStorage): number {
+  let moved = 0;
+  try {
+    for (const k of Object.keys(storage).filter((x) => x.startsWith(LEGACY_PREFIX))) {
+      const target = PREFIX + k.slice(LEGACY_PREFIX.length);
+      const value = storage.getItem(k);
+      if (value === null || storage.getItem(target) !== null) continue;
+      storage.setItem(target, value);
+      storage.removeItem(k);
+      moved++;
+    }
+  } catch {
+    /* sin acceso o sin espacio: se queda como estaba */
+  }
+  return moved;
+}
 
 export interface Settings {
   lang: 'es' | 'en';
@@ -87,7 +111,7 @@ export function saveSettings(settings: Settings, storage: Storage = localStorage
 
 /** Copia de seguridad completa (todos los grupos) como JSON. */
 export function backupJson(groups: Group[]): string {
-  return JSON.stringify({ app: 'amedias', v: 1, exportedAt: new Date().toISOString(), groups }, null, 1);
+  return JSON.stringify({ app: 'repartito', v: 1, exportedAt: new Date().toISOString(), groups }, null, 1);
 }
 
 /** Lee una copia de seguridad o un grupo suelto exportado. Valida cada grupo. */

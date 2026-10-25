@@ -1,8 +1,8 @@
 /* global self, caches, fetch, URL, Response, crypto */
 /*
- * Service worker de «a medias», escrito a mano.
+ * Service worker de Repartito, escrito a mano.
  *
- * - Solo GET y solo dentro de su ámbito (/amedias/): nunca toca nada de otras rutas ni de otros orígenes.
+ * - Solo GET y solo dentro de su ámbito (/repartito/): nunca toca nada de otras rutas ni de otros orígenes.
  * - Al instalar guarda la app (index.html, manifest, icono) y los archivos con hash que enlaza index.html,
  *   incluidas sus fuentes, para que la app funcione sin conexión desde la primera visita.
  * - Navegación: primero la red (para recibir versiones nuevas) y, sin conexión, la copia guardada.
@@ -17,10 +17,10 @@
 // Ambas constantes las reescribe el build (plugin `sw-integrity` de vite.config.ts).
 const VERSION = 'dev';
 const INTEGRITY = {};
-const SHELL_CACHE = `amedias-shell-${VERSION}`;
-const ASSET_CACHE = `amedias-assets-${VERSION}`;
+const SHELL_CACHE = `repartito-shell-${VERSION}`;
+const ASSET_CACHE = `repartito-assets-${VERSION}`;
 const MAX_ASSETS = 80;
-const SCOPE = self.registration.scope; // p. ej. https://bertmarti.github.io/amedias/
+const SCOPE = self.registration.scope; // p. ej. https://bertmarti.github.io/repartito/
 const ASSETS_PREFIX = new URL('assets/', SCOPE).href;
 const INDEX = new URL('./', SCOPE).href;
 const SHELL = [INDEX, new URL('manifest.webmanifest', SCOPE).href, new URL('icon.svg', SCOPE).href];
@@ -28,7 +28,7 @@ const SHELL = [INDEX, new URL('manifest.webmanifest', SCOPE).href, new URL('icon
 const inScope = (url) => url.startsWith(SCOPE);
 const cacheable = (res) => res && res.ok && res.type === 'basic';
 
-/** Huella esperada de una URL del ámbito (ruta relativa a /amedias/; la raíz es index.html). */
+/** Huella esperada de una URL del ámbito (ruta relativa a /repartito/; la raíz es index.html). */
 function expected(url) {
   const path = new URL(url).pathname.slice(new URL(SCOPE).pathname.length) || 'index.html';
   return Object.prototype.hasOwnProperty.call(INTEGRITY, path) ? INTEGRITY[path] : null;
@@ -115,7 +115,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k.startsWith('amedias-') && k !== SHELL_CACHE && k !== ASSET_CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => /^(repartito|amedias)-/.test(k) && k !== SHELL_CACHE && k !== ASSET_CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });

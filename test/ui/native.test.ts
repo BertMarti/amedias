@@ -9,12 +9,12 @@ describe('app de Android', () => {
   });
 
   it('la dirección pública es https y coincide con la base de GitHub Pages', () => {
-    expect(PUBLIC_URL).toMatch(/^https:\/\/[a-z0-9.-]+\/amedias\/$/);
+    expect(PUBLIC_URL).toMatch(/^https:\/\/[a-z0-9.-]+\/repartito\/$/);
   });
 
   it('la CSP de la app y de la web es la misma, con Trusted Types', () => {
     expect(CSP).toContain("require-trusted-types-for 'script'");
-    expect(CSP).toContain('trusted-types amedias-sw');
+    expect(CSP).toContain('trusted-types repartito-sw');
     expect(CSP).not.toContain('unsafe');
   });
 });

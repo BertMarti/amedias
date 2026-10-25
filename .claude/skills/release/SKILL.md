@@ -1,6 +1,6 @@
 ---
 name: release
-description: Publica una versión de «a medias» (semver) con CHANGELOG, etiqueta, despliegue en GitHub Pages y APK de Android. Úsala cuando pidan «sacar versión» o «release».
+description: Publica una versión de Repartito (semver) con CHANGELOG, etiqueta, despliegue en GitHub Pages y APK de Android. Úsala cuando pidan «sacar versión» o «release».
 ---
 
 # Publicar una versión

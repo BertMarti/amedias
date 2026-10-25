@@ -118,7 +118,7 @@ export function ShareSheet({ active, onClose, group }: SheetProps & { group: Gro
                 <button
                   type="button"
                   className="btn btn--soft"
-                  onClick={() => void shareLink(`${group.name} (a medias)`, shareText, link.url)}
+                  onClick={() => void shareLink(`${group.name} (Repartito)`, shareText, link.url)}
                 >
                   <Icon name="share" />
                   {t('share.send')}
@@ -152,7 +152,7 @@ export function ShareSheet({ active, onClose, group }: SheetProps & { group: Gro
             type="button"
             className="btn btn--ghost"
             onClick={() => {
-              downloadText(`amedias-${fileSlug(group.name)}.json`, JSON.stringify(group, null, 1), 'application/json');
+              downloadText(`repartito-${fileSlug(group.name)}.json`, JSON.stringify(group, null, 1), 'application/json');
               toast(t('toast.downloaded'), 'info');
             }}
           >
@@ -163,7 +163,7 @@ export function ShareSheet({ active, onClose, group }: SheetProps & { group: Gro
             type="button"
             className="btn btn--ghost"
             onClick={() => {
-              downloadText(`amedias-${fileSlug(group.name)}.csv`, exportCsv(group, lang), 'text/csv;charset=utf-8');
+              downloadText(`repartito-${fileSlug(group.name)}.csv`, exportCsv(group, lang), 'text/csv;charset=utf-8');
               toast(t('toast.downloaded'), 'info');
             }}
           >

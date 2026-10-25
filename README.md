@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="docs/assets/banner.png" alt="a medias: reparte los gastos del piso, la pareja o el viaje sin cuentas, sin anuncios y sin límites" width="100%">
+  <img src="docs/assets/banner.png" alt="Repartito: reparte los gastos del piso, la pareja o el viaje sin cuentas, sin anuncios y sin límites" width="100%">
 </p>
 
 <h3 align="center">Cuentas claras y el chocolate espeso.</h3>
 
 <p align="center">
-  <a href="https://bertmarti.github.io/amedias/"><img src="https://img.shields.io/badge/Abrir_a_medias-%E2%86%92-FF5A3C?style=for-the-badge&labelColor=1D1A16" alt="Abrir a medias"></a>
+  <a href="https://bertmarti.github.io/repartito/"><img src="https://img.shields.io/badge/Abrir_Repartito-%E2%86%92-FF5A3C?style=for-the-badge&labelColor=1D1A16" alt="Abrir Repartito"></a>
 </p>
 
 <p align="center">
@@ -21,7 +21,7 @@
 
 ## 🍫 ¿Qué es?
 
-**a medias** es la forma más sencilla de saber **quién debe qué** cuando compartes gastos: el súper del
+**Repartito** es la forma más sencilla de saber **quién debe qué** cuando compartes gastos: el súper del
 piso, la luz, la cena del viernes o el viaje con amigos.
 
 Apuntas lo que paga cada uno y la app hace las cuentas por ti: te dice cuánto te deben, cuánto debes y
@@ -40,7 +40,7 @@ Y sin trampas: **no tienes que crear una cuenta**, **no hay anuncios**, **no hay
 
 ## ⚡ Cómo se usa (en un minuto)
 
-1. **Abre** <https://bertmarti.github.io/amedias/> y toca **Nuevo grupo** (o **Probar con un grupo de ejemplo**
+1. **Abre** <https://bertmarti.github.io/repartito/> y toca **Nuevo grupo** (o **Probar con un grupo de ejemplo**
    para curiosear sin compromiso).
 2. **Pon los nombres** de quienes compartís gastos y marca cuál eres tú.
 3. Cada vez que alguien pague algo, toca **+ Gasto**: cuánto, qué es y quién lo pagó. Por defecto se reparte
@@ -109,7 +109,7 @@ cambios de los dos, **sin perder nada y sin duplicar nada**.
   <tr>
     <td width="60%" valign="top">
 
-- **Se quedan en tu móvil.** No hay servidor de «a medias» ni base de datos: tus gastos no viajan a ningún
+- **Se quedan en tu móvil.** No hay servidor de Repartito ni base de datos: tus gastos no viajan a ningún
   sitio salvo cuando **tú** compartes un enlace.
 - **Sin cuentas, sin rastreo.** Ni registro, ni publicidad, ni analítica, ni cookies de terceros.
 - **Blindada frente a enlaces malintencionados.** Todo lo que llega de fuera se revisa al detalle antes de
@@ -119,7 +119,7 @@ cambios de los dos, **sin perder nada y sin duplicar nada**.
 
   </td>
   <td width="40%" align="center">
-    <img src="docs/assets/oscuro.webp" alt="a medias en tema oscuro" width="88%">
+    <img src="docs/assets/oscuro.webp" alt="Repartito en tema oscuro" width="88%">
   </td>
   </tr>
 </table>
@@ -129,13 +129,13 @@ cambios de los dos, **sin perder nada y sin duplicar nada**.
 ### Android: la app
 
 <p>
-  <a href="https://github.com/BertMarti/amedias/releases/latest"><img src="https://img.shields.io/badge/Descargar_para_Android-APK-17B897?style=for-the-badge&logo=android&logoColor=white&labelColor=1D1A16" alt="Descargar para Android"></a>
+  <a href="https://github.com/BertMarti/repartito/releases/latest"><img src="https://img.shields.io/badge/Descargar_para_Android-APK-17B897?style=for-the-badge&logo=android&logoColor=white&labelColor=1D1A16" alt="Descargar para Android"></a>
 </p>
 
-1. Abre la [última versión](https://github.com/BertMarti/amedias/releases/latest) desde el móvil y descarga el
-   archivo **`amedias-….apk`**.
+1. Abre la [última versión](https://github.com/BertMarti/repartito/releases/latest) desde el móvil y descarga el
+   archivo **`repartito-….apk`**.
 2. Ábrelo. Si Android te avisa, permite instalar apps **de esta fuente** (solo para esta vez).
-3. Listo: «a medias» aparece con su icono, como cualquier otra app.
+3. Listo: Repartito aparece con su icono, como cualquier otra app.
 
 La app de Android es todavía **más privada** que la web: **no pide ningún permiso** (ni siquiera Internet),
 sus datos no los puede leer ninguna web y **no se copian a la nube de Google**. Para cambiar de móvil, usa la
@@ -154,7 +154,7 @@ Una vez instalada, se abre al momento y funciona **aunque no tengas cobertura**.
 ## 🔄 ¿Vienes de Splitwise?
 
 1. En la web de Splitwise, abre el grupo y descarga la exportación en **CSV**.
-2. En «a medias», toca **Abrir enlace o archivo** y elige ese archivo.
+2. En Repartito, toca **Abrir enlace o archivo** y elige ese archivo.
 3. Listo: personas, gastos y **los mismos saldos** que tenías.
 
 ## ❓ Preguntas frecuentes

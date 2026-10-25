@@ -5,13 +5,13 @@ def pkg = new groovy.json.JsonSlurper().parse(file('../../package.json'))
 def (vMajor, vMinor, vPatch) = pkg.version.tokenize('.').collect { it.toInteger() }
 
 // La firma de las versiones publicadas llega por variables de entorno (secretos del CI); nunca está en el repo.
-def keystorePath = System.getenv('AMEDIAS_KEYSTORE')
+def keystorePath = System.getenv('REPARTITO_KEYSTORE')
 
 android {
-    namespace = "io.github.bertmarti.amedias"
+    namespace = "io.github.bertmarti.repartito"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "io.github.bertmarti.amedias"
+        applicationId "io.github.bertmarti.repartito"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode vMajor * 10000 + vMinor * 100 + vPatch
@@ -27,9 +27,9 @@ android {
         if (keystorePath) {
             release {
                 storeFile file(keystorePath)
-                storePassword System.getenv('AMEDIAS_KEYSTORE_PASSWORD')
-                keyAlias System.getenv('AMEDIAS_KEY_ALIAS')
-                keyPassword System.getenv('AMEDIAS_KEYSTORE_PASSWORD')
+                storePassword System.getenv('REPARTITO_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('REPARTITO_KEY_ALIAS')
+                keyPassword System.getenv('REPARTITO_KEYSTORE_PASSWORD')
             }
         }
     }

@@ -22,13 +22,13 @@ export const CSP = [
   "object-src 'none'",
   "require-trusted-types-for 'script'",
   // Solo puede existir la política que registra el service worker (ni siquiera una `default`).
-  'trusted-types amedias-sw',
+  'trusted-types repartito-sw',
 ].join('; ');
 
 /** Solo en el build: el servidor de desarrollo de Vite inyecta scripts en línea que la CSP bloquearía. */
 function csp(): Plugin {
   return {
-    name: 'amedias-csp',
+    name: 'repartito-csp',
     apply: 'build',
     transformIndexHtml(html) {
       return html.replace('<meta charset="UTF-8" />', `<meta charset="UTF-8" />\n    <meta http-equiv="Content-Security-Policy" content="${CSP}" />`);
@@ -47,7 +47,7 @@ function files(dir: string): string[] {
 function swIntegrity(): Plugin {
   let outDir = 'dist';
   return {
-    name: 'amedias-sw-integrity',
+    name: 'repartito-sw-integrity',
     apply: 'build',
     configResolved(c) {
       outDir = c.build.outDir;
@@ -68,12 +68,12 @@ function swIntegrity(): Plugin {
   };
 }
 
-// Web: GitHub Pages sirve la app en /amedias/. App de Android (`--mode android`): Capacitor la sirve en la raíz
+// Web: GitHub Pages sirve la app en /repartito/. App de Android (`--mode android`): Capacitor la sirve en la raíz
 // de https://localhost desde los archivos del APK, así que no lleva service worker.
 export default defineConfig(({ mode }) => {
   const android = mode === 'android';
   return {
-    base: android ? '/' : '/amedias/',
+    base: android ? '/' : '/repartito/',
     plugins: [react(), csp(), ...(android ? [] : [swIntegrity()])],
     // En la web, los plugins de Capacitor se cambian por un sustituto vacío: no viajan en el paquete publicado.
     resolve: android

@@ -1,6 +1,6 @@
 {
-  "appId": "io.github.bertmarti.amedias",
-  "appName": "a medias",
+  "appId": "io.github.bertmarti.repartito",
+  "appName": "Repartito",
   "webDir": "dist-android",
   "loggingBehavior": "none",
   "android": {

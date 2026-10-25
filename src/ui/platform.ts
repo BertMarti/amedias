@@ -80,7 +80,7 @@ export function registerServiceWorker(base: string): void {
   try {
     if (tt) {
       scriptUrl = tt
-        .createPolicy('amedias-sw', {
+        .createPolicy('repartito-sw', {
           createScriptURL: (u) => {
             if (u !== url) throw new TypeError('URL de service worker no permitida');
             return u;

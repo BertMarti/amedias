@@ -100,7 +100,7 @@ app/src/main/assets/capacitor.config.json
 app/src/main/assets/capacitor.plugins.json
 app/src/main/res/xml/config.xml
 
-# a medias: la web compilada y la configuración se copian en cada `cap sync`
+# Repartito: la web compilada y la configuración se copian en cada `cap sync`
 app/src/main/assets/public/
 app/src/main/assets/capacitor.config.json
 app/src/main/assets/capacitor.plugins.json

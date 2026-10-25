@@ -1,11 +1,11 @@
-# PLAN.md · a medias
+# PLAN.md · Repartito
 
 ## Por qué existe
 
 En 2026 la app de referencia para repartir gastos limita su plan gratuito a unos pocos gastos al día, con
 esperas y anuncios. Las alternativas piden cuenta, tienen anuncios o un plan de pago. Lo que más se pide en
 apps de productividad es que **funcionen sin conexión de verdad**, y la queja más repetida es que lo gratis
-pase a ser de pago. «a medias» resuelve un problema diario (el súper del piso, la cena, el viaje) sin
+pase a ser de pago. Repartito resuelve un problema diario (el súper del piso, la cena, el viaje) sin
 ninguna de esas trabas.
 
 ## Principios

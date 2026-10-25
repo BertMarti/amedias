@@ -17,7 +17,7 @@ concurrency:
 
 env:
   # Huella del certificado de firma de las versiones publicadas. Si cambiara, Android no dejaría actualizar.
-  CERT_SHA256: cce8239beb0eb792570232eb7d10cef946a49f3a10d14b21c97a7b5dc13cac65
+  CERT_SHA256: 5a5b274259e6d30bed717d24c018e71073bc8d23902ddbad9d80ea4f4e65bbbe
 
 jobs:
   build:
@@ -37,7 +37,7 @@ jobs:
       - name: La app lleva la CSP con Trusted Types y no registra service worker
         run: |
           grep -q "require-trusted-types-for 'script'" dist-android/index.html
-          grep -q "trusted-types amedias-sw" dist-android/index.html
+          grep -q "trusted-types repartito-sw" dist-android/index.html
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
@@ -88,7 +88,7 @@ jobs:
           disable-animations: true
           script: |
             adb install -r app-debug.apk
-            adb shell am start -W -n io.github.bertmarti.amedias/.MainActivity
+            adb shell am start -W -n io.github.bertmarti.repartito/.MainActivity
             node scripts/android-e2e.mjs e2e
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
@@ -132,14 +132,14 @@ jobs:
       - name: Compilar y firmar
         working-directory: android
         env:
-          KEYSTORE_BASE64: ${{ secrets.AMEDIAS_KEYSTORE_BASE64 }}
-          AMEDIAS_KEYSTORE_PASSWORD: ${{ secrets.AMEDIAS_KEYSTORE_PASSWORD }}
-          AMEDIAS_KEY_ALIAS: ${{ secrets.AMEDIAS_KEY_ALIAS }}
+          KEYSTORE_BASE64: ${{ secrets.REPARTITO_KEYSTORE_BASE64 }}
+          REPARTITO_KEYSTORE_PASSWORD: ${{ secrets.REPARTITO_KEYSTORE_PASSWORD }}
+          REPARTITO_KEY_ALIAS: ${{ secrets.REPARTITO_KEY_ALIAS }}
         run: |
-          export AMEDIAS_KEYSTORE="$RUNNER_TEMP/firma.p12"
-          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$AMEDIAS_KEYSTORE"
+          export REPARTITO_KEYSTORE="$RUNNER_TEMP/firma.p12"
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$REPARTITO_KEYSTORE"
           ./gradlew --no-daemon assembleRelease bundleRelease
-          rm -f "$AMEDIAS_KEYSTORE"
+          rm -f "$REPARTITO_KEYSTORE"
       - name: Comprobar firma, que no sea depurable y preparar los archivos
         run: |
           BT="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)"
@@ -148,12 +148,12 @@ jobs:
           grep -qi "SHA-256 digest: $CERT_SHA256" firma.txt
           if "$BT/aapt2" dump badging "$APK" | grep -q "application-debuggable"; then echo "El APK publicado no puede ser depurable"; exit 1; fi
           mkdir -p salida
-          cp "$APK" "salida/amedias-$GITHUB_REF_NAME.apk"
-          cp android/app/build/outputs/bundle/release/app-release.aab "salida/amedias-$GITHUB_REF_NAME.aab"
+          cp "$APK" "salida/repartito-$GITHUB_REF_NAME.apk"
+          cp android/app/build/outputs/bundle/release/app-release.aab "salida/repartito-$GITHUB_REF_NAME.aab"
           (cd salida && sha256sum ./* > SHA256SUMS.txt && cat SHA256SUMS.txt)
       - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
-          subject-path: salida/amedias-*
+          subject-path: salida/repartito-*
       - name: Adjuntar a la release
         env:
           GH_TOKEN: ${{ github.token }}

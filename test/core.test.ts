@@ -23,6 +23,7 @@ import {
   parseCsv,
   parseGroup,
   payloadFromHash,
+  migrateLegacyStorage,
   readBackup,
   recurringExpenseId,
   renameGroup,
@@ -376,7 +377,7 @@ describe('almacenamiento local', () => {
     const storage = { getItem: (k: string) => mem.get(k) ?? null, setItem: (k: string, v: string) => void mem.set(k, v) } as Storage;
     const g = piso();
     saveGroups([g], storage);
-    mem.set('amedias:v1:grupos', JSON.stringify([g, { v: 1, roto: true }]));
+    mem.set('repartito:v1:grupos', JSON.stringify([g, { v: 1, roto: true }]));
     const r = loadGroups(storage);
     expect(r.groups).toHaveLength(1);
     expect(r.damaged).toBe(1);
@@ -500,5 +501,35 @@ describe('auditoría de seguridad (regresiones)', () => {
   it('revalidate devuelve un grupo idéntico cuando es válido', () => {
     const g = conGasto();
     expect(revalidate(g)).toEqual(parseGroup(clon(g)));
+  });
+});
+
+describe('cambio de nombre a Repartito', () => {
+  it('migra los datos guardados con el nombre antiguo sin pisar los nuevos', () => {
+    const mem = new Map<string, string>([
+      ['amedias:v1:grupos', '[1]'],
+      ['amedias:v1:ajustes', '{"lang":"en"}'],
+      ['repartito:v1:ajustes', '{"lang":"es"}'],
+      ['otra-web', 'x'],
+    ]);
+    const storage = {
+      getItem: (k: string) => mem.get(k) ?? null,
+      setItem: (k: string, v: string) => void mem.set(k, v),
+      removeItem: (k: string) => void mem.delete(k),
+      ...Object.fromEntries(mem),
+    } as unknown as Storage;
+    // Object.keys(storage) lista las claves, como en el navegador.
+    expect(migrateLegacyStorage(storage)).toBe(1);
+    expect(mem.get('repartito:v1:grupos')).toBe('[1]');
+    expect(mem.has('amedias:v1:grupos')).toBe(false);
+    expect(mem.get('repartito:v1:ajustes')).toBe('{"lang":"es"}');
+    expect(mem.get('amedias:v1:ajustes')).toBe('{"lang":"en"}');
+    expect(mem.get('otra-web')).toBe('x');
+  });
+
+  it('los enlaces cifrados conservan su identificador de protocolo', async () => {
+    const g = piso();
+    const payload = await encodeGroup(g, 'clave-de-prueba');
+    expect((await decodeGroup(payload, 'clave-de-prueba')).id).toBe(g.id);
   });
 });

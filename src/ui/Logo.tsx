@@ -23,7 +23,7 @@ export function Wordmark({ size = 28 }: { size?: number }) {
   return (
     <span className="wordmark" style={{ fontSize: size }}>
       <SplitDisc size={size * 1.05} className="wordmark-disc" />
-      <span className="wordmark-text">a medias</span>
+      <span className="wordmark-text">repartito</span>
     </span>
   );
 }

@@ -1,6 +1,6 @@
 # Cómo contribuir
 
-¡Gracias! «a medias» quiere seguir siendo pequeña, rápida y segura.
+¡Gracias! Repartito quiere seguir siendo pequeño, rápido y seguro.
 
 1. Abre un issue antes de un cambio grande.
 2. `npm ci` y `npm run check` en verde (con Node < 24: `./dk.sh npm run check`).
