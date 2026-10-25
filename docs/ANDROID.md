@@ -18,6 +18,10 @@ No hay una segunda base de código.
 | Enlaces que se comparten | Dirección de la web | Siempre la web pública (`PUBLIC_URL`), nunca `localhost` |
 | Copia en la nube de Google | — | **Desactivada** (`allowBackup=false` y reglas de extracción vacías): los gastos no salen del móvil |
 
+Barras del sistema: `SystemBars.insetsHandling = native`. El CSS ya usa `env(safe-area-inset-*)` y el modo
+por defecto (`css`) inyectaba variables que no se usan, a veces antes de que existiera el documento (error de
+consola que detectó la prueba en emulador).
+
 Todo lo específico está en `src/ui/native.ts`, detrás de la constante de compilación `NATIVE`. En el build web,
 los plugins de Capacitor se cambian por `src/ui/native-stub.ts` (0,17 kB): la web no lleva Capacitor.
 
