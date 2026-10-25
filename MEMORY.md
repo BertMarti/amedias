@@ -1,5 +1,5 @@
 # MEMORY.md · a medias
-Última actualización: 2026-10-25 por lead (v0.1.0)
+Última actualización: 2026-10-25 por lead (v0.2.0)
 
 Memoria compartida entre agentes: estado, decisiones y trampas. Lo estable está en [AGENTS.md](AGENTS.md);
 la hoja de ruta, en [PLAN.md](PLAN.md).
@@ -24,6 +24,10 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 - **`parseAmount`**: el último separador es decimal solo si le siguen 1-2 cifras; con 3 es de miles («1.234» = 1234). Rechaza separadores seguidos.
 - **Validación**: los ids deben ser UUID, lo que bloquea por diseño claves como `__proto__`; el emoji solo admite emojis; topes de 50 personas, 20 000 gastos, 120 caracteres por texto y 1e9 céntimos.
 - **Enlaces**: `#g=1.` sin contraseña o `#g=1e.` con ella (PBKDF2 600 000 + AES-GCM con AAD). Tope de 1,5 MB de texto y de 8 MB al descomprimir.
+- **App de Android con Capacitor 8** (v0.2.0): misma base de código; `NATIVE` es constante de compilación (`--mode android`) y en la web los plugins se cambian por `native-stub.ts`. Origen propio `https://localhost` (resuelve I6/I7 en la app), sin permisos, `allowBackup=false`, `loggingBehavior: none`. Los enlaces siempre usan `PUBLIC_URL`.
+- **Firma**: PKCS#12 RSA 4096, alias `amedias`, huella SHA-256 `cce8…ac65` (fijada en `android.yml`). Secretos en el entorno `android-release` (solo etiquetas `v*`). Copia de la clave fuera del repo, en el equipo del autor: sin ella no se puede actualizar la app instalada.
+- **Versión de Android** = `package.json` (`x.y.z` → versionCode `x*10000+y*100+z`).
+- **Prueba de la app**: emulador API 35 en el CI y `scripts/android-e2e.mjs` por DevTools (solo los APK de depuración permiten inspeccionar el WebView).
 - **Coordinación**: el repo de perfil `BertMarti` (README y `site/`) lo gestiona la sesión «Revisión de repositorios GitHub». A ella se le pasan las capturas `.webp` de 640×400 y los textos, sin dominios reales, IPs ni emails.
 
 ## Trampas conocidas
@@ -34,6 +38,8 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 - `eslint-disable-next-line` tiene que ir justo encima de la línea: un comentario en medio lo anula.
 - El Chromium sin cabeza del equipo de desarrollo no tiene fuente de emojis: las capturas del README evitan pantallas con emoji.
 - La demo no llama «Tú» a nadie («Marta pagó a Tú»): usa «Alex» y la app marca «(tú)».
+- Con `bash -e`, una línea `! comando` en mitad de un paso de Actions **no** hace fallar el paso: solo cuenta si es la última línea. Usa `if …; then exit 1; fi`.
+- En el equipo de desarrollo (arm64) no hay SDK de Android: el APK solo se compila en el CI (rama + PR).
 - `sw.js` en `public/` lleva `VERSION = 'dev'` e `INTEGRITY = {}`: sin build no cachea nada. El CI comprueba que el build los reescribe.
 
 ## Tras publicar (2026-10-25)

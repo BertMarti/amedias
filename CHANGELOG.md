@@ -4,6 +4,21 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ## [Sin publicar]
 
+## [0.2.0] - 2026-10-25
+
+### Añadido
+
+- **App de Android** (APK en cada release): la misma app, instalable como cualquier otra.
+- En la app, compartir enlaces y guardar copias o CSV con el menú del sistema.
+- Iconos adaptativos (también monocromos) y pantalla de arranque con la marca.
+
+### Seguridad
+
+- La app tiene su propio origen: no comparte almacenamiento con otras webs de `github.io`.
+- No pide ningún permiso del sistema (ni Internet) y no copia los datos en la nube de Google.
+- APK y AAB firmados en un entorno protegido, con huella del certificado verificada, atestación de procedencia y `SHA256SUMS.txt`.
+- La web publicada no incluye Capacitor (sustituto vacío de 0,17 kB).
+
 ## [0.1.0] - 2026-10-25
 
 ### Añadido
@@ -33,5 +48,6 @@ Auditoría independiente antes de publicar; todo corregido y con test de regresi
 - Los datos dañados se apartan con fecha y se pueden descargar desde Ajustes.
 - El despliegue exige las mismas comprobaciones que el CI.
 
-[Sin publicar]: https://github.com/BertMarti/amedias/compare/v0.1.0...HEAD
+[Sin publicar]: https://github.com/BertMarti/amedias/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/BertMarti/amedias/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/BertMarti/amedias/releases/tag/v0.1.0

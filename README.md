@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/sin-anuncios-17B897?style=flat-square&labelColor=1D1A16" alt="Sin anuncios">
   <img src="https://img.shields.io/badge/funciona-sin_conexi%C3%B3n-FF5A3C?style=flat-square&labelColor=1D1A16" alt="Funciona sin conexión">
   <img src="https://img.shields.io/badge/idiomas-ES_%C2%B7_EN-FBF7F0?style=flat-square&labelColor=1D1A16" alt="Español e inglés">
+  <img src="https://img.shields.io/badge/app-Android-17B897?style=flat-square&labelColor=1D1A16" alt="App para Android">
 </p>
 
 ---
@@ -123,7 +124,24 @@ cambios de los dos, **sin perder nada y sin duplicar nada**.
   </tr>
 </table>
 
-## 📱 Instálala como una app
+## 📱 Instálala en el móvil
+
+### Android: la app
+
+<p>
+  <a href="https://github.com/BertMarti/amedias/releases/latest"><img src="https://img.shields.io/badge/Descargar_para_Android-APK-17B897?style=for-the-badge&logo=android&logoColor=white&labelColor=1D1A16" alt="Descargar para Android"></a>
+</p>
+
+1. Abre la [última versión](https://github.com/BertMarti/amedias/releases/latest) desde el móvil y descarga el
+   archivo **`amedias-….apk`**.
+2. Ábrelo. Si Android te avisa, permite instalar apps **de esta fuente** (solo para esta vez).
+3. Listo: «a medias» aparece con su icono, como cualquier otra app.
+
+La app de Android es todavía **más privada** que la web: **no pide ningún permiso** (ni siquiera Internet),
+sus datos no los puede leer ninguna web y **no se copian a la nube de Google**. Para cambiar de móvil, usa la
+copia de seguridad de Ajustes.
+
+### iPhone, Android u ordenador: desde el navegador
 
 No hace falta tienda de aplicaciones:
 
@@ -179,11 +197,12 @@ Sí: euros, dólares, libras, pesos, yenes y más. Cada grupo tiene su moneda.
 <details>
 <summary><b>🛠️ Para curiosos y desarrolladores</b></summary>
 
-Web estática (React + TypeScript) publicada en GitHub Pages, sin servidor propio. La sincronización es una
+Web estática (React + TypeScript) publicada en GitHub Pages, sin servidor propio, y la misma app empaquetada
+para Android con Capacitor. La sincronización es una
 fusión sin conflictos de las copias de cada persona; los enlaces van comprimidos y, con contraseña, cifrados
 en el propio navegador.
 
-- [Cómo funciona la sincronización](docs/SINCRONIZACION.md)
+- [Cómo funciona la sincronización](docs/SINCRONIZACION.md) · [App de Android](docs/ANDROID.md)
 - [Arquitectura](docs/ARQUITECTURA.md)
 - [Modelo de amenazas y auditoría](docs/MODELO_DE_AMENAZAS.md) · [Política de seguridad](SECURITY.md)
 - [Plan](PLAN.md) · [Cambios](CHANGELOG.md) · [Cómo contribuir](CONTRIBUTING.md) · [Guía para agentes de IA](AGENTS.md)
@@ -193,6 +212,7 @@ npm ci
 npm run dev      # desarrollo
 npm run check    # lint + tipos + tests
 npm run build    # versión publicable en dist/
+npm run build:android && (cd android && ./gradlew assembleDebug)   # APK de Android
 ```
 
 </details>

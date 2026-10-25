@@ -26,7 +26,16 @@ ninguna de esas trabas.
 - [x] Despliegue en GitHub Pages y README con capturas.
 - [x] Auditoría de seguridad independiente (1 alto, 5 medios: todo corregido con tests).
 
-## v0.2.0 «Bizum» — siguiente
+## v0.2.0 «Bolsillo» — publicada
+
+- [x] App de Android (Capacitor): origen propio, sin permisos, sin copia en la nube.
+- [x] Compartir y guardar copias o CSV con el menú del sistema.
+- [x] CI que la prueba en un emulador y publica APK y AAB firmados, con atestación de procedencia.
+
+## v0.3.0 «Bizum» — siguiente
+
+- [ ] Abrir los enlaces `#g=` directamente en la app (App Links, requiere `assetlinks.json` en la raíz del dominio).
+- [ ] Publicar en Google Play (el AAB ya se genera en cada versión).
 
 - [ ] **Origen propio** (subdominio) para no compartir `localStorage`, Cache API ni service workers con otras webs de `bertmarti.github.io` (amenazas I6, I7).
 - [ ] Recordatorio amable para pedir lo que te deben (texto listo para WhatsApp).

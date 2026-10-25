@@ -50,13 +50,30 @@ navegador de cada persona. Análisis STRIDE de lo que sí puede salir mal.
 | SC1 | Dependencia comprometida | Pocas dependencias, todas de build; `ignore-scripts=true`; `npm audit`, revisión de dependencias y Dependabot con 7 días de espera. La imagen de Node de `dk.sh` va fijada por digest. | `.npmrc`, `ci.yml`, `dependabot.yml`, `dk.sh` |
 | SC2 | Action comprometida | Actions fijadas por SHA, permisos mínimos; solo el trabajo `deploy` puede publicar, y antes pasa lint, tipos, tests, `npm audit` y las comprobaciones de CSP y huellas. | `.github/workflows/` |
 
+## App de Android
+
+La app de Android ([docs/ANDROID.md](ANDROID.md)) es la misma web dentro de un APK. Cambia la superficie:
+
+| # | Amenaza | Mitigación | Dónde |
+|---|---|---|---|
+| A1 | Otras webs del mismo origen leen los datos (I6, I7) | En la app, el origen es `https://localhost` **propio del APK**: no se comparte con nadie. | Capacitor |
+| A2 | La app filtra datos por la red | **Ningún permiso del sistema**, ni Internet. El CI falla si el APK pide alguno. | `AndroidManifest.xml`, `android.yml` |
+| A3 | Copia automática de los gastos en la nube de Google o al pasar a otro móvil | `allowBackup=false` y reglas de extracción que lo excluyen todo. | `AndroidManifest.xml`, `data_extraction_rules.xml` |
+| A4 | Los plugins escriben en el registro del sistema (logcat) textos con datos (p. ej. un enlace) | `loggingBehavior: none`. | `capacitor.config.json` |
+| A5 | Depurar el WebView de la app publicada | Solo las compilaciones de depuración permiten DevTools; el CI comprueba que el APK publicado **no es depurable**. | `android.yml` |
+| A6 | `FileProvider` expone más archivos de los necesarios | Solo la caché privada (`cache-path`), donde se escriben las copias y los CSV antes de compartirlos. | `file_paths.xml` |
+| A7 | APK manipulado o firmado por otro | Firma con una clave que solo vive en un entorno de GitHub restringido a etiquetas `v*`; el CI verifica la huella del certificado; atestación de procedencia y `SHA256SUMS.txt` en cada release. | `android.yml`, `docs/ANDROID.md` |
+| A8 | Gradle o su wrapper comprometidos | `wrapper-validation` y `distributionSha256Sum` fijado; actions por SHA. | `android.yml`, `gradle-wrapper.properties` |
+| A9 | El build web arrastra código nativo | Los plugins de Capacitor se sustituyen por un módulo vacío en la web. | `vite.config.ts`, `native-stub.ts` |
+
 ## Riesgos aceptados
 
 - **Dispositivo comprometido** o extensiones del navegador maliciosas: pueden leer `localStorage`.
 - **Quien tiene el enlace y la contraseña** ve el grupo entero (como recibir el archivo).
 - **Relojes desajustados** pueden decidir qué edición gana en una fusión (ver
   [SINCRONIZACION.md](SINCRONIZACION.md#límites-del-modelo)); con un margen de 24 h.
-- **Origen compartido con otras webs del autor en `github.io`** (I6, I7), hasta pasar a un dominio propio.
+- **Origen compartido con otras webs del autor en `github.io`** (I6, I7) en la web, hasta pasar a un dominio propio. La app de Android no lo tiene (A1).
+- **Instalar el APK fuera de Google Play** obliga a permitir «fuentes desconocidas» para ese archivo; se mitiga con la firma verificable y la atestación (A7).
 - **Navegadores sin Trusted Types** (Firefox y Safari antiguos): la CSP sigue bloqueando scripts ajenos; solo
   falta esa capa extra.
 
