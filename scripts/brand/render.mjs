@@ -12,7 +12,11 @@ let seq = 0;
 const waiters = new Map();
 ws.onmessage = (msg) => {
   const data = JSON.parse(msg.data);
-  waiters.get(data.id)?.(data.result);
+  // Solo respuestas a peticiones nuestras (id numérico registrado); los eventos de CDP se ignoran.
+  if (!Number.isInteger(data.id) || !waiters.has(data.id)) return;
+  const resolve = waiters.get(data.id);
+  waiters.delete(data.id);
+  if (typeof resolve === 'function') resolve(data.result);
 };
 const send = (method, params = {}) =>
   new Promise((resolve) => {
