@@ -68,19 +68,28 @@ function swIntegrity(): Plugin {
   };
 }
 
-// GitHub Pages sirve la app en /amedias/.
-export default defineConfig({
-  base: '/amedias/',
-  plugins: [react(), csp(), swIntegrity()],
-  build: {
-    target: 'es2022',
-    sourcemap: false,
-    // Sin `data:` en línea: la CSP solo permite recursos propios.
-    assetsInlineLimit: 0,
-    modulePreload: { polyfill: false },
-  },
-  test: {
-    environment: 'happy-dom',
-    include: ['test/**/*.test.{ts,tsx}'],
-  },
+// Web: GitHub Pages sirve la app en /amedias/. App de Android (`--mode android`): Capacitor la sirve en la raíz
+// de https://localhost desde los archivos del APK, así que no lleva service worker.
+export default defineConfig(({ mode }) => {
+  const android = mode === 'android';
+  return {
+    base: android ? '/' : '/amedias/',
+    plugins: [react(), csp(), ...(android ? [] : [swIntegrity()])],
+    // En la web, los plugins de Capacitor se cambian por un sustituto vacío: no viajan en el paquete publicado.
+    resolve: android
+      ? {}
+      : { alias: { '@capacitor/share': '/src/ui/native-stub.ts', '@capacitor/filesystem': '/src/ui/native-stub.ts' } },
+    build: {
+      outDir: android ? 'dist-android' : 'dist',
+      target: 'es2022',
+      sourcemap: false,
+      // Sin `data:` en línea: la CSP solo permite recursos propios.
+      assetsInlineLimit: 0,
+      modulePreload: { polyfill: false },
+    },
+    test: {
+      environment: 'happy-dom',
+      include: ['test/**/*.test.{ts,tsx}'],
+    },
+  };
 });

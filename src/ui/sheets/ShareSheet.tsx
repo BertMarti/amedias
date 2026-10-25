@@ -5,6 +5,7 @@ import { FieldNote } from '../bits';
 import { useApp } from '../context';
 import { Icon } from '../icons';
 import type { SheetProps } from '../Layers';
+import { appUrl, canShare as systemShare, shareLink } from '../native';
 import { Sheet } from '../Sheet';
 import { copyText, downloadText, fileSlug, generatePassphrase } from '../util';
 
@@ -33,14 +34,14 @@ export function ShareSheet({ active, onClose, group }: SheetProps & { group: Gro
   const [link, setLink] = useState<Link | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
-  const canShare = typeof navigator.share === 'function';
+  const canShare = systemShare();
 
   const generate = async () => {
     setBusy(true);
     setError(false);
     try {
       const payload = await encodeGroup(group, pass || undefined);
-      const url = shareUrl(location.origin + import.meta.env.BASE_URL, payload);
+      const url = shareUrl(appUrl(), payload);
       const qr = payload.length <= QR_MAX_CHARS ? await makeQr(url) : null;
       setLink({ url, payloadLength: payload.length, qr, encrypted: !!pass });
     } catch {
@@ -117,7 +118,7 @@ export function ShareSheet({ active, onClose, group }: SheetProps & { group: Gro
                 <button
                   type="button"
                   className="btn btn--soft"
-                  onClick={() => navigator.share({ title: `${group.name} (a medias)`, text: shareText, url: link.url }).catch(() => undefined)}
+                  onClick={() => void shareLink(`${group.name} (a medias)`, shareText, link.url)}
                 >
                   <Icon name="share" />
                   {t('share.send')}

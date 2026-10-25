@@ -5,3 +5,9 @@ coverage/
 .env.*
 .DS_Store
 *.log
+dist-android/
+# Claves de firma de Android: nunca en el repositorio
+*.jks
+*.keystore
+*.p12
+keystore.properties

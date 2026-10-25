@@ -1,5 +1,6 @@
 /** Utilidades de interfaz (sin estado). Nada de aquí hace peticiones de red. */
 import { balances, liveExpenses, payloadFromHash, payloadKind, today, type Expense, type Group, type Id, type Member } from '../core';
+import { NATIVE, saveFileNative } from './native';
 
 /** Tope para leer archivos que elige la persona (copias, CSV). */
 export const MAX_FILE_BYTES = 20 * 1024 * 1024;
@@ -30,8 +31,12 @@ export function fileSlug(name: string): string {
   return s || 'grupo';
 }
 
-/** Descarga un texto como archivo (Blob local; nada sale del dispositivo). */
+/** Descarga un texto como archivo (Blob local; nada sale del dispositivo). En la app, menú de compartir. */
 export function downloadText(filename: string, text: string, type: string): void {
+  if (NATIVE) {
+    void saveFileNative(filename, text);
+    return;
+  }
   const url = URL.createObjectURL(new Blob([text], { type }));
   const a = document.createElement('a');
   a.href = url;

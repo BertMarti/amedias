@@ -1,6 +1,6 @@
 {
   "name": "amedias",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Reparte gastos de piso, pareja o viaje sin cuenta, sin anuncios y sin límites. Funciona sin conexión.",
   "license": "MIT",
@@ -16,9 +16,11 @@
     "test": "vitest run",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "check": "npm run lint && npm run typecheck && npm test"
+    "check": "npm run lint && npm run typecheck && npm test",
+    "build:android": "tsc --noEmit && vite build --mode android && cap sync android"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.5.3",
     "@eslint/js": "^10.0.1",
     "@fontsource-variable/fraunces": "^5.3.0",
     "@fontsource-variable/manrope": "^5.3.0",
@@ -38,5 +40,14 @@
     "typescript-eslint": "^8.72.0",
     "vite": "^8.3.5",
     "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/filesystem": "8.1.5",
+    "@capacitor/share": "8.0.3"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
   }
 }
