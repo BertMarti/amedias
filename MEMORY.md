@@ -35,3 +35,12 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 - El Chromium sin cabeza del equipo de desarrollo no tiene fuente de emojis: las capturas del README evitan pantallas con emoji.
 - La demo no llama «Tú» a nadie («Marta pagó a Tú»): usa «Alex» y la app marca «(tú)».
 - `sw.js` en `public/` lleva `VERSION = 'dev'` e `INTEGRITY = {}`: sin build no cachea nada. El CI comprueba que el build los reescribe.
+
+## Tras publicar (2026-10-25)
+
+- Repo público `BertMarti/amedias`, Pages desplegado desde Actions y release v0.1.0. CI, CodeQL, Scorecard y despliegue en verde.
+- Build reproducible: la `VERSION` del service worker publicada coincide con la del build local.
+- Comprobado en la web publicada: CSP con `trusted-types amedias-sw`, service worker activo con cachés verificadas, consola limpia.
+- CodeQL avisó de `js/unvalidated-dynamic-method-call` en `scripts/brand/render.mjs` (herramienta local): corregido.
+- Avisos de Scorecard aceptados por ahora (proyecto de una persona): protección de rama, revisión de código, fuzzing, insignia CII.
+- Tarjetas 640×400 para el perfil enviadas a la sesión «Revisión de repositorios GitHub», que las publica con su propia PR.
