@@ -58,3 +58,7 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 - Web publicada comprobada: service worker en `/repartito/`, cachés `amedias-*` antiguas borradas, consola limpia.
 - El `gh` del equipo de desarrollo (2.46) no tiene `gh attestation`: se comprueba con `gh api repos/BertMarti/repartito/attestations/sha256:<huella>`.
 - Pendiente (PLAN v0.3): App Links para abrir los `#g=` en la app (necesita `assetlinks.json` en la raíz del dominio) y Google Play (cuenta de desarrollador del autor).
+
+## v0.2.1 publicada (2026-10-26)
+
+- Hallazgos de la revisión externa P1-P4 corregidos con tests (PR #2). Release con APK/AAB firmados (misma huella de certificado que la v0.2.0, así que se instala encima) y atestaciones comprobadas.
