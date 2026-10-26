@@ -4,6 +4,18 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ## [Sin publicar]
 
+## [0.2.1] - 2026-10-25
+
+### Seguridad
+
+- Con un enlace protegido por contraseña, el nombre del grupo ya no aparece en el mensaje ni en la vista previa del chat.
+- «Borrar todos los datos» también borra lo que quedara guardado con el nombre antiguo.
+- Modelo de amenazas: la amenaza del origen compartido (I6) describe con precisión las webs hermanas.
+
+### Corregido
+
+- En navegadores antiguos sin `deflate-raw`, un enlace válido ya no se presenta como dañado: se explica que hay que actualizar el navegador.
+
 ## [0.2.0] - 2026-10-25
 
 ### Cambiado
@@ -52,6 +64,7 @@ Auditoría independiente antes de publicar; todo corregido y con test de regresi
 - Los datos dañados se apartan con fecha y se pueden descargar desde Ajustes.
 - El despliegue exige las mismas comprobaciones que el CI.
 
-[Sin publicar]: https://github.com/BertMarti/repartito/compare/v0.2.0...HEAD
+[Sin publicar]: https://github.com/BertMarti/repartito/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/BertMarti/repartito/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/BertMarti/repartito/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/BertMarti/repartito/releases/tag/v0.1.0

@@ -34,6 +34,8 @@ ninguna de esas trabas.
 
 ## v0.3.0 «Bizum» — siguiente
 
+- [ ] **Origen propio** para la web (organización o subdominio `repartito`): adelantado tras la revisión externa (I6, P1).
+
 - [ ] Abrir los enlaces `#g=` directamente en la app (App Links, requiere `assetlinks.json` en la raíz del dominio).
 - [ ] Publicar en Google Play (el AAB ya se genera en cada versión).
 

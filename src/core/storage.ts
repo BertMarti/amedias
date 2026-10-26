@@ -11,6 +11,15 @@ const SETTINGS = `${PREFIX}ajustes`;
 /** Prefijo de la v0.1.0, cuando la app se llamaba «a medias» (mismo origen en GitHub Pages). */
 const LEGACY_PREFIX = 'amedias:v1:';
 
+/** Borra los restos del nombre antiguo (los que la migración no movió porque ya existía la clave nueva). */
+export function clearLegacyStorage(storage: Storage = localStorage): void {
+  try {
+    for (const k of Object.keys(storage).filter((x) => x.startsWith(LEGACY_PREFIX))) storage.removeItem(k);
+  } catch {
+    /* sin acceso: nada que borrar */
+  }
+}
+
 /**
  * Pasa los datos guardados con el nombre antiguo al nuevo, sin pisar nada: si la clave nueva ya existe, la
  * antigua se deja como está. Devuelve cuántas claves movió.

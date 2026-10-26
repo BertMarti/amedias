@@ -51,7 +51,8 @@ export function ShareSheet({ active, onClose, group }: SheetProps & { group: Gro
     }
   };
 
-  const shareText = link?.encrypted ? t('share.messageLocked', { name: group.name }) : t('share.message', { name: group.name });
+  // Con contraseña, nada del grupo viaja en claro: ni en el mensaje ni en la vista previa del chat.
+  const shareText = link?.encrypted ? t('share.messageLocked') : t('share.message', { name: group.name });
 
   return (
     <Sheet title={t('share.title')} active={active} onClose={onClose}>
@@ -118,7 +119,7 @@ export function ShareSheet({ active, onClose, group }: SheetProps & { group: Gro
                 <button
                   type="button"
                   className="btn btn--soft"
-                  onClick={() => void shareLink(`${group.name} (Repartito)`, shareText, link.url)}
+                  onClick={() => void shareLink(link.encrypted ? 'Repartito' : `${group.name} (Repartito)`, shareText, link.url)}
                 >
                   <Icon name="share" />
                   {t('share.send')}

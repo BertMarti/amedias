@@ -23,7 +23,9 @@ import {
   parseCsv,
   parseGroup,
   payloadFromHash,
+  clearLegacyStorage,
   migrateLegacyStorage,
+  supportsLinks,
   readBackup,
   recurringExpenseId,
   renameGroup,
@@ -531,5 +533,38 @@ describe('cambio de nombre a Repartito', () => {
     const g = piso();
     const payload = await encodeGroup(g, 'clave-de-prueba');
     expect((await decodeGroup(payload, 'clave-de-prueba')).id).toBe(g.id);
+  });
+});
+
+describe('revisión externa (regresiones)', () => {
+  it('P3: en un navegador sin deflate-raw, el enlace no se da por dañado', async () => {
+    const payload = await encodeGroup(piso());
+    const original = globalThis.DecompressionStream;
+    globalThis.DecompressionStream = class {
+      constructor() {
+        throw new TypeError('formato no soportado');
+      }
+    } as unknown as typeof DecompressionStream;
+    try {
+      await expect(decodeGroup(payload)).rejects.toMatchObject({ code: 'unsupported' });
+      expect(supportsLinks()).toBe(false);
+    } finally {
+      globalThis.DecompressionStream = original;
+    }
+    expect(supportsLinks()).toBe(true);
+  });
+
+  it('P4: borrar los restos del nombre antiguo no toca nada más', () => {
+    const mem = new Map<string, string>([
+      ['amedias:v1:grupos', '[1]'],
+      ['repartito:v1:grupos', '[2]'],
+      ['otra-web', 'x'],
+    ]);
+    const storage = {
+      removeItem: (k: string) => void mem.delete(k),
+      ...Object.fromEntries(mem),
+    } as unknown as Storage;
+    clearLegacyStorage(storage);
+    expect([...mem.keys()].sort()).toEqual(['otra-web', 'repartito:v1:grupos']);
   });
 });

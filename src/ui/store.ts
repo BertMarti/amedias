@@ -6,6 +6,7 @@
  * otra pestaña) entra solo a través de las funciones validadoras del dominio.
  */
 import {
+  clearLegacyStorage,
   incomingProblem,
   loadGroups,
   loadSettings,
@@ -248,6 +249,8 @@ export class AppStore {
 
   removeAll = () => {
     this.persist([]);
+    // «Borrar todo» es todo: también lo que quedara con el nombre antiguo («a medias»).
+    clearLegacyStorage();
     try {
       for (const k of damagedKeys()) localStorage.removeItem(k);
     } catch {

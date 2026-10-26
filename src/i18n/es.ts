@@ -231,7 +231,7 @@ export const es = {
   'share.copy': 'Copiar enlace',
   'share.send': 'Enviar…',
   'share.message': 'Te paso las cuentas de «{name}» en Repartito. Ábrelo y se juntan con las tuyas:',
-  'share.messageLocked': 'Te paso las cuentas de «{name}» en Repartito. Te digo la contraseña por otro lado:',
+  'share.messageLocked': 'Te paso unas cuentas en Repartito. Te digo la contraseña por otro lado:',
   'share.passSeparately': 'Envía la contraseña por otro canal (una llamada, otro chat).',
   'share.qrAlt': 'Código QR con el enlace de «{name}»',
   'share.qrHint': 'Escanéalo con la cámara de otro móvil.',
@@ -300,6 +300,7 @@ export const es = {
   'incoming.err.passphrase_required': 'Este enlace necesita contraseña.',
   'incoming.err.wrong_passphrase': 'La contraseña no es correcta (o el enlace está dañado).',
   'incoming.err.invalid': 'El enlace no contiene un grupo válido.',
+  'incoming.err.unsupported': 'Tu navegador es demasiado antiguo para abrir enlaces de Repartito. Actualízalo (o usa otro) y vuelve a abrir el mismo enlace: no hace falta pedir otro.',
 
   'settings.title': 'Ajustes',
   'settings.lang': 'Idioma',

@@ -15,6 +15,7 @@ const ERRORS: Record<Code, Key> = {
   passphrase_required: 'incoming.err.passphrase_required',
   wrong_passphrase: 'incoming.err.wrong_passphrase',
   invalid: 'incoming.err.invalid',
+  unsupported: 'incoming.err.unsupported',
 };
 
 type Phase = { p: 'decoding' } | { p: 'pass'; error?: Code; busy?: boolean } | { p: 'error'; code: Code } | { p: 'preview'; groups: Group[] };

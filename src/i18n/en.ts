@@ -233,7 +233,7 @@ export const en: Dict = {
   'share.copy': 'Copy link',
   'share.send': 'Send…',
   'share.message': 'Here are the accounts for “{name}” in Repartito. Open it and they merge with yours:',
-  'share.messageLocked': 'Here are the accounts for “{name}” in Repartito. I’ll send you the passphrase separately:',
+  'share.messageLocked': 'Here are some accounts in Repartito. I’ll send you the passphrase separately:',
   'share.passSeparately': 'Send the passphrase another way (a call, a different chat).',
   'share.qrAlt': 'QR code with the link for “{name}”',
   'share.qrHint': 'Scan it with another phone’s camera.',
@@ -302,6 +302,7 @@ export const en: Dict = {
   'incoming.err.passphrase_required': 'This link needs a passphrase.',
   'incoming.err.wrong_passphrase': 'The passphrase is wrong (or the link is damaged).',
   'incoming.err.invalid': 'The link doesn’t contain a valid group.',
+  'incoming.err.unsupported': 'Your browser is too old to open Repartito links. Update it (or use another one) and open the same link again: no need to ask for a new one.',
 
   'settings.title': 'Settings',
   'settings.lang': 'Language',
