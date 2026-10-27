@@ -1,7 +1,7 @@
 /** Crear y editar entidades con ids y marcas de tiempo correctas (lo que necesita la fusión). */
 import { decimals } from './money';
 import { cleanText } from './validate';
-import { LIMITS, type Category, type Cents, type Currency, type Expense, type Group, type Id, type IsoDate, type Member, type Recurring, type Split } from './types';
+import { LIMITS, type Category, type Cents, type Currency, type Expense, type Group, type Id, type IsoDate, type Member, type Recurring, type Split, type Template } from './types';
 
 export const uuid = (): Id => crypto.randomUUID();
 
@@ -20,7 +20,7 @@ export function newGroup(name: string, memberNames: string[], currency: Currency
   const members: Member[] = [...new Set(memberNames.map((n) => cleanText(n, LIMITS.name)).filter(Boolean))]
     .slice(0, LIMITS.members)
     .map((n) => ({ id: uuid(), name: n, updatedAt: now }));
-  return { v: 1, id: uuid(), name: cleanText(name, LIMITS.name) || 'Grupo', emoji, currency, members, expenses: [], recurring: [], createdAt: now, updatedAt: now };
+  return { v: 1, id: uuid(), name: cleanText(name, LIMITS.name) || 'Grupo', emoji, currency, members, expenses: [], recurring: [], templates: [], createdAt: now, updatedAt: now };
 }
 
 export function addMember(group: Group, name: string, now = Date.now()): Group {
@@ -87,4 +87,41 @@ export function renameGroup(group: Group, patch: Partial<Pick<Group, 'name' | 'e
     throw new Error('No se puede cambiar a una moneda con distintos decimales si el grupo ya tiene gastos');
   }
   return { ...group, ...patch, name: patch.name !== undefined ? cleanText(patch.name, LIMITS.name) || group.name : group.name, updatedAt: bump(group.updatedAt, now) };
+}
+
+/** Lo que se guarda de un gasto como plantilla (o lo que trae una plantilla al usarla). */
+export type TemplateInput = Pick<Template, 'title' | 'paidBy' | 'split' | 'category'> & { amount?: Cents };
+
+const fold = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+/**
+ * Guarda una plantilla. Si ya hay una con el mismo nombre (sin contar mayúsculas ni tildes), la actualiza: guardar
+ * otra vez «Súper» con otro importe no crea dos «Súper».
+ */
+export function saveTemplate(group: Group, input: TemplateInput, now = Date.now()): Group {
+  const title = cleanText(input.title) || 'Plantilla';
+  const data = { title, ...(input.amount !== undefined && { amount: input.amount }), paidBy: input.paidBy, split: input.split, category: input.category };
+  const same = group.templates.find((t) => !t.deleted && fold(t.title) === fold(title));
+  if (same) {
+    return { ...group, templates: group.templates.map((t) => (t === same ? { id: t.id, ...data, updatedAt: bump(t.updatedAt, now) } : t)) };
+  }
+  return { ...group, templates: [...group.templates, { id: uuid(), ...data, updatedAt: now }] };
+}
+
+/** Borrar = lápida, como los gastos. */
+export function deleteTemplate(group: Group, id: Id, now = Date.now()): Group {
+  return { ...group, templates: group.templates.map((t) => (t.id === id ? { ...t, deleted: true, updatedAt: bump(t.updatedAt, now) } : t)) };
+}
+
+/** Plantillas vivas, por orden alfabético. */
+export function liveTemplates(group: Group, locale = 'es'): Template[] {
+  return group.templates.filter((t) => !t.deleted).sort((a, b) => a.title.localeCompare(b.title, locale));
+}
+
+/**
+ * «Repetir»: lo que se copia de un gasto (o de una plantilla) a uno nuevo. Todo menos la fecha, que es la de hoy,
+ * y la identidad: el gasto nuevo tendrá su propio id.
+ */
+export function repeatInput(src: TemplateInput, date: IsoDate = today()): Omit<ExpenseInput, 'amount'> & { amount?: Cents } {
+  return { kind: 'expense', title: src.title, ...(src.amount !== undefined && { amount: src.amount }), paidBy: src.paidBy, split: src.split, category: src.category, date };
 }

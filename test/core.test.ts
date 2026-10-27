@@ -39,6 +39,12 @@ import {
   updateMember,
   updateRecurring,
   cleanText,
+  deleteTemplate,
+  latestEdit,
+  liveTemplates,
+  repeatInput,
+  saveTemplate,
+  LIMITS,
   type Group,
 } from '../src/core';
 
@@ -566,5 +572,167 @@ describe('revisión externa (regresiones)', () => {
     } as unknown as Storage;
     clearLegacyStorage(storage);
     expect([...mem.keys()].sort()).toEqual(['otra-web', 'repartito:v1:grupos']);
+  });
+});
+
+describe('plantillas y «Repetir» (v0.3.0)', () => {
+  const DAY = 24 * 3600 * 1000;
+  const clon = (g: Group) => JSON.parse(JSON.stringify(g)) as Group;
+  const conPlantillas = () => {
+    const g = piso();
+    const [ana, luis, marta] = ids(g);
+    const todos = { mode: 'equal' as const, among: [ana, luis, marta] };
+    let x = saveTemplate(g, { title: 'Súper', paidBy: ana, split: todos, category: 'compra' }, T0 + 1);
+    x = saveTemplate(x, { title: 'Bombona', amount: 2200, paidBy: luis, split: todos, category: 'casa' }, T0 + 2);
+    return { g: x, ana, luis, marta, todos };
+  };
+
+  it('guarda, actualiza por nombre (sin mayúsculas ni tildes) y borra con lápida', () => {
+    const { g, ana, todos } = conPlantillas();
+    expect(liveTemplates(g).map((t) => t.title)).toEqual(['Bombona', 'Súper']);
+    expect(g.templates.find((t) => t.title === 'Súper')).not.toHaveProperty('amount');
+    const id = g.templates.find((t) => t.title === 'Súper')!.id;
+    const g2 = saveTemplate(g, { title: '  super ', amount: 4500, paidBy: ana, split: todos, category: 'compra' }, T0 + 3);
+    expect(g2.templates).toHaveLength(2);
+    expect(g2.templates.find((t) => t.id === id)).toMatchObject({ title: 'super', amount: 4500, updatedAt: T0 + 3 });
+    const g3 = deleteTemplate(g2, id, T0 + 4);
+    expect(g3.templates.find((t) => t.id === id)).toMatchObject({ deleted: true, updatedAt: T0 + 4 });
+    expect(liveTemplates(g3).map((t) => t.title)).toEqual(['Bombona']);
+    // Con la plantilla borrada, guardar otra con el mismo nombre crea una nueva (la lápida se queda).
+    expect(saveTemplate(g3, { title: 'Súper', paidBy: ana, split: todos, category: 'compra' }, T0 + 5).templates).toHaveLength(3);
+    expect(() => revalidate(g3)).not.toThrow();
+  });
+
+  it('«Repetir» copia todo menos la fecha (hoy) y la identidad', () => {
+    let { g } = conPlantillas();
+    const [ana, luis] = ids(g);
+    g = addExpense(g, { title: 'Cena', amount: 3000, paidBy: ana, split: { mode: 'exact', amounts: { [ana]: 1000, [luis]: 2000 } }, category: 'restaurante', date: '2026-10-05' }, T0 + 3);
+    const src = g.expenses[0]!;
+    const r = repeatInput(src, '2026-10-27');
+    expect(r).toEqual({ kind: 'expense', title: 'Cena', amount: 3000, paidBy: ana, split: src.split, category: 'restaurante', date: '2026-10-27' });
+    expect(r).not.toHaveProperty('id');
+    const next = addExpense(g, { ...r, amount: r.amount! }, T0 + 4);
+    expect(next.expenses).toHaveLength(2);
+    expect(next.expenses[1]!.id).not.toBe(src.id);
+    // Desde una plantilla sin importe, el importe queda por escribir.
+    expect(repeatInput(g.templates.find((t) => t.title === 'Súper')!, '2026-10-27')).not.toHaveProperty('amount');
+  });
+
+  it('los grupos de antes (sin plantillas) se leen con la lista vacía', () => {
+    const viejo = clon(piso()) as Partial<Group>;
+    delete viejo.templates;
+    expect(parseGroup(viejo).templates).toEqual([]);
+    // Y un grupo con plantillas pasa la validación tal cual.
+    const { g } = conPlantillas();
+    expect(revalidate(g)).toEqual(g);
+  });
+
+  it.each([
+    ['id que no es UUID', (t: Record<string, unknown>) => (t.id = '__proto__')],
+    ['quien paga no está en el grupo', (t: Record<string, unknown>) => (t.paidBy = crypto.randomUUID())],
+    ['importe negativo', (t: Record<string, unknown>) => (t.amount = -5)],
+    ['importe con decimales', (t: Record<string, unknown>) => (t.amount = 10.5)],
+    ['reparto que no cuadra con el importe', (t: Record<string, unknown>) => ((t.amount = 1000), (t.split = { mode: 'exact', amounts: {} }))],
+    ['importes exactos sin importe', (t: Record<string, unknown>) => (t.split = { mode: 'exact', amounts: {} })],
+    ['porcentajes que no suman 100 %', (t: Record<string, unknown>) => (t.split = { mode: 'percent', basisPoints: { [String(t.paidBy)]: 5000 } })],
+    ['categoría inventada', (t: Record<string, unknown>) => (t.category = 'drogas')],
+    ['fecha interna del futuro lejano', (t: Record<string, unknown>) => (t.updatedAt = Date.now() + 5 * 365 * DAY)],
+  ])('rechaza una plantilla con %s', (_, mutate) => {
+    const raw = clon(conPlantillas().g) as unknown as { templates: Record<string, unknown>[] };
+    mutate(raw.templates[0]!);
+    expect(() => parseGroup(raw)).toThrow();
+  });
+
+  it('rechaza listas de plantillas que no son listas, repetidas o por encima del límite', () => {
+    const { g } = conPlantillas();
+    expect(() => parseGroup({ ...clon(g), templates: {} })).toThrow();
+    expect(() => parseGroup({ ...clon(g), templates: [g.templates[0], g.templates[0]] })).toThrow();
+    const muchas = Array.from({ length: LIMITS.templates + 1 }, () => ({ ...g.templates[0]!, id: crypto.randomUUID() }));
+    expect(() => parseGroup({ ...clon(g), templates: muchas })).toThrow();
+    expect(() => parseGroup({ ...clon(g), templates: muchas.slice(1) })).not.toThrow();
+  });
+
+  it('limpia el nombre y descarta campos desconocidos', () => {
+    const raw = clon(conPlantillas().g) as unknown as { templates: Record<string, unknown>[] };
+    raw.templates[0]!.title = 'Sú\u202eper\u0000';
+    raw.templates[0]!.foto = 'data:image/jpeg;base64,AAAA';
+    const t = parseGroup(raw).templates[0]!;
+    expect(t.title).toBe('Sú per');
+    expect(t).not.toHaveProperty('foto');
+  });
+
+  it('la fusión con plantillas sigue siendo conmutativa, asociativa e idempotente', () => {
+    const { g, ana, todos } = conPlantillas();
+    const [idSuper, idBombona] = [g.templates[0]!.id, g.templates[1]!.id];
+    const a = saveTemplate(g, { title: 'Súper', amount: 5000, paidBy: ana, split: todos, category: 'compra' }, T0 + 10);
+    const b = deleteTemplate(g, idSuper, T0 + 20);
+    const c = saveTemplate(deleteTemplate(g, idBombona, T0 + 5), { title: 'Luz', paidBy: ana, split: todos, category: 'facturas' }, T0 + 30);
+    const m = (x: Group, y: Group) => mergeGroups(x, y);
+    expect(m(a, b)).toEqual(m(b, a));
+    expect(m(m(a, b), c)).toEqual(m(a, m(b, c)));
+    expect(m(m(a, b), c)).toEqual(m(m(c, a), b));
+    expect(m(m(a, b), m(a, b))).toEqual(m(a, b));
+    const all = m(m(a, b), c);
+    // Gana la lápida (más reciente) frente a la edición; la plantilla nueva llega y la otra se borra.
+    expect(all.templates.find((t) => t.id === idSuper)!.deleted).toBe(true);
+    expect(all.templates.find((t) => t.id === idBombona)!.deleted).toBe(true);
+    expect(liveTemplates(all).map((t) => t.title)).toEqual(['Luz']);
+    expect(() => revalidate(all)).not.toThrow();
+  });
+
+  it('propiedades de la fusión con ediciones al azar en tres móviles', () => {
+    let seed = 42;
+    const rnd = (n: number) => {
+      seed = (seed * 1103515245 + 12345) % 2 ** 31;
+      return seed % n;
+    };
+    const { g, ana, luis, todos } = conPlantillas();
+    for (let ronda = 0; ronda < 25; ronda++) {
+      const copias = [clon(g), clon(g), clon(g)];
+      for (let paso = 0; paso < 6; paso++) {
+        const i = rnd(3);
+        const x = copias[i]!;
+        const live = liveTemplates(x);
+        const now = T0 + 100 + rnd(50);
+        const op = rnd(3);
+        if (op === 0 || live.length === 0) copias[i] = saveTemplate(x, { title: ['Súper', 'Luz', 'Agua', 'Bombona'][rnd(4)]!, ...(rnd(2) ? { amount: 100 + rnd(9000) } : {}), paidBy: rnd(2) ? ana : luis, split: todos, category: 'compra' }, now);
+        else if (op === 1) copias[i] = deleteTemplate(x, live[rnd(live.length)]!.id, now);
+        else copias[i] = addExpense(x, { title: 'Pan', amount: 100 + rnd(500), paidBy: ana, split: todos, category: 'compra', date: '2026-10-06' }, now);
+      }
+      const [a, b, c] = copias as [Group, Group, Group];
+      expect(mergeGroups(a, b)).toEqual(mergeGroups(b, a));
+      expect(mergeGroups(mergeGroups(a, b), c)).toEqual(mergeGroups(a, mergeGroups(b, c)));
+      const ab = mergeGroups(a, b);
+      expect(mergeGroups(ab, ab)).toEqual(ab);
+      expect(mergeGroups(ab, a)).toEqual(ab);
+      expect(() => revalidate(mergeGroups(ab, c))).not.toThrow();
+    }
+  });
+
+  it('la vista previa cuenta las plantillas nuevas, cambiadas y borradas', () => {
+    const { g, ana, todos } = conPlantillas();
+    const b = deleteTemplate(saveTemplate(g, { title: 'Luz', paidBy: ana, split: todos, category: 'facturas' }, T0 + 10), g.templates[0]!.id, T0 + 11);
+    expect(mergePreview(g, b)).toMatchObject({ upToDate: false, templates: 2, newExpenses: 0, recurring: 0 });
+    expect(mergePreview(b, g)).toMatchObject({ upToDate: true, templates: 0 });
+    expect(mergePreview(g, clon(g))).toMatchObject({ upToDate: true, templates: 0 });
+  });
+
+  it('una plantilla con fecha adelantada cuenta como edición del futuro (F4)', () => {
+    const { g } = conPlantillas();
+    const b = clon(g);
+    b.templates[0]!.updatedAt = T0 + 30 * DAY;
+    expect(latestEdit(b)).toBe(T0 + 30 * DAY);
+    expect(incomingProblem(g, b, T0)).toBe('future');
+    expect(incomingProblem(g, clon(g), T0)).toBeNull();
+  });
+
+  it('no se acepta una fusión que pasaría del límite de plantillas (F1)', () => {
+    const { g, ana, todos } = conPlantillas();
+    let a = g;
+    let b = clon(g);
+    for (let i = 0; i < 60; i++) a = saveTemplate(a, { title: `A${i}`, paidBy: ana, split: todos, category: 'compra' }, T0 + 3);
+    for (let i = 0; i < 60; i++) b = saveTemplate(b, { title: `B${i}`, paidBy: ana, split: todos, category: 'compra' }, T0 + 3);
+    expect(() => revalidate(a)).not.toThrow();
+    expect(incomingProblem(a, b, T0 + 10)).toBe('limits');
   });
 });

@@ -6,7 +6,7 @@
  * los textos se recortan y limpian de caracteres de control y los números se acotan.
  */
 import { splitProblem } from './split';
-import { CATEGORIES, CURRENCIES, LIMITS, type Category, type Currency, type Expense, type Group, type Id, type Member, type Recurring, type Split } from './types';
+import { CATEGORIES, CURRENCIES, LIMITS, type Category, type Currency, type Expense, type Group, type Id, type Member, type Recurring, type Split, type Template } from './types';
 
 export class InvalidGroupError extends Error {
   constructor(motivo: string) {
@@ -141,12 +141,40 @@ function recurringItem(v: unknown, members: ReadonlySet<Id>): Recurring {
   return r;
 }
 
+/**
+ * Plantilla: con importe, el reparto tiene que cuadrar con él; sin importe, no puede ser por importes exactos (no
+ * habría con qué cuadrarlos) y los porcentajes tienen que sumar 100 %.
+ */
+function templateItem(v: unknown, members: ReadonlySet<Id>): Template {
+  if (!isObj(v)) return fail('plantilla');
+  const amount = v.amount === undefined ? undefined : int(v.amount, 1, LIMITS.amount, 'importe');
+  let s: Split;
+  if (amount !== undefined) s = checkedSplit(v.split, amount, members);
+  else {
+    s = split(v.split, members);
+    if (s.mode === 'exact' || splitProblem(0, s, members)) fail('reparto');
+  }
+  return {
+    id: id(v.id),
+    title: cleanText(v.title) || 'Plantilla',
+    ...(amount !== undefined && { amount }),
+    paidBy: members.has(id(v.paidBy)) ? (v.paidBy as Id) : fail('quién pagó'),
+    split: s,
+    category: oneOf<Category>(v.category, CATEGORIES, 'categoría'),
+    updatedAt: ts(v.updatedAt),
+    ...(bool(v.deleted) && { deleted: true }),
+  };
+}
+
 /** Valida y reconstruye un grupo. Lanza `InvalidGroupError` con un motivo genérico (sin eco de los datos). */
 export function parseGroup(v: unknown): Group {
   if (!isObj(v) || v.v !== 1) return fail('formato');
   if (!Array.isArray(v.members) || v.members.length > LIMITS.members) fail('personas');
   if (!Array.isArray(v.expenses) || v.expenses.length > LIMITS.expenses) fail('gastos');
   if (!Array.isArray(v.recurring) || v.recurring.length > LIMITS.recurring) fail('gastos fijos');
+  // Los grupos de antes de la v0.3.0 no traen plantillas: es lo mismo que una lista vacía.
+  const rawTemplates = v.templates === undefined ? [] : v.templates;
+  if (!Array.isArray(rawTemplates) || rawTemplates.length > LIMITS.templates) fail('plantillas');
   const members = (v.members as unknown[]).map(member);
   const ids = new Set(members.map((m) => m.id));
   if (ids.size !== members.length) fail('personas repetidas');
@@ -156,6 +184,8 @@ export function parseGroup(v: unknown): Group {
   const recIds = new Set(recurring.map((r) => r.id));
   const expenses = (v.expenses as unknown[]).map((e) => expense(e, ids, recIds, lastMonth));
   if (new Set(expenses.map((e) => e.id)).size !== expenses.length) fail('gastos repetidos');
+  const templates = (rawTemplates as unknown[]).map((t) => templateItem(t, ids));
+  if (new Set(templates.map((t) => t.id)).size !== templates.length) fail('plantillas repetidas');
   const createdAt = ts(v.createdAt);
   if (createdAt < MIN_TS) fail('fecha interna');
   return {
@@ -171,6 +201,7 @@ export function parseGroup(v: unknown): Group {
     members,
     expenses,
     recurring,
+    templates,
     createdAt,
     updatedAt: ts(v.updatedAt),
   };
@@ -191,6 +222,6 @@ export const FUTURE_SLACK_MS = 24 * 3600 * 1000;
 /** Mayor marca de edición del grupo: si está en el futuro, sus cambios ganarían a los nuestros durante meses. */
 export function latestEdit(g: Group): number {
   let max = g.updatedAt;
-  for (const x of [...g.members, ...g.expenses, ...g.recurring]) if (x.updatedAt > max) max = x.updatedAt;
+  for (const x of [...g.members, ...g.expenses, ...g.recurring, ...g.templates]) if (x.updatedAt > max) max = x.updatedAt;
   return max;
 }
