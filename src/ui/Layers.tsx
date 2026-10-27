@@ -1,10 +1,13 @@
+import { useI18n } from '../i18n';
 import { useApp, type Layer } from './context';
+import { Sheet } from './Sheet';
 import { ConfirmSheet } from './sheets/ConfirmSheet';
 import { ExpenseSheet } from './sheets/ExpenseSheet';
 import { GroupSettingsSheet } from './sheets/GroupSettingsSheet';
 import { ImportSheet } from './sheets/ImportSheet';
 import { IncomingSheet } from './sheets/IncomingSheet';
 import { NewGroupSheet } from './sheets/NewGroupSheet';
+import { PhotoView } from './sheets/PhotoField';
 import { RecurringSheet } from './sheets/RecurringSheet';
 import { SettingsSheet } from './sheets/SettingsSheet';
 import { ShareSheet } from './sheets/ShareSheet';
@@ -18,6 +21,7 @@ export interface SheetProps {
 /** Pinta la hoja que corresponde a cada capa de la pila. */
 export function LayerView({ layer, active }: { layer: Layer; active: boolean }) {
   const { pop, groups } = useApp();
+  const { t } = useI18n();
   const onClose = () => pop();
   const p = { active, onClose };
   const groupOf = (id: string) => groups.find((g) => g.id === id);
@@ -34,12 +38,19 @@ export function LayerView({ layer, active }: { layer: Layer; active: boolean }) 
       return <IncomingSheet {...p} source={layer.source} />;
     case 'confirm':
       return <ConfirmSheet {...p} spec={layer} />;
+    case 'photo':
+      return (
+        <Sheet {...p} title={t('photo.title')}>
+          <PhotoView src={layer.src} title={layer.title} />
+        </Sheet>
+      );
     default: {
       const group = groupOf(layer.groupId);
       if (!group) return null;
       switch (layer.t) {
         case 'expense':
-          return <ExpenseSheet {...p} group={group} expenseId={layer.expenseId} kind={layer.kind} />;
+          // La clave obliga a empezar de cero al cambiar «editar» por «repetir» en la misma posición de la pila.
+          return <ExpenseSheet key={layer.repeatOf ? `r-${layer.repeatOf}` : (layer.expenseId ?? 'new')} {...p} group={group} expenseId={layer.expenseId} kind={layer.kind} repeatOf={layer.repeatOf} />;
         case 'recurring':
           return <RecurringSheet {...p} group={group} recurringId={layer.recurringId} />;
         case 'groupSettings':

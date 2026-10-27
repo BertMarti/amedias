@@ -1,5 +1,5 @@
 # MEMORY.md · Repartito
-Última actualización: 2026-10-25 por lead (v0.2.0)
+Última actualización: 2026-10-27 por builder (v0.3.0, rama `feat/v0.3`)
 
 Memoria compartida entre agentes: estado, decisiones y trampas. Lo estable está en [AGENTS.md](AGENTS.md);
 la hoja de ruta, en [PLAN.md](PLAN.md).
@@ -30,6 +30,17 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 - **Prueba de la app**: emulador API 35 en el CI y `scripts/android-e2e.mjs` por DevTools (solo los APK de depuración permiten inspeccionar el WebView).
 - **Coordinación**: el repo de perfil `BertMarti` (README y `site/`) lo gestiona la sesión «Revisión de repositorios GitHub». A ella se le pasan las capturas `.webp` de 640×400 y los textos, sin dominios reales, IPs ni emails.
 
+- **Plantillas en el modelo del grupo** (v0.3.0), no solo locales: son del piso («la bombona la paga siempre Leo»)
+  y lo útil es que todos las tengan. Siguen las reglas de la fusión (UUID, `updatedAt`, lápidas, `revalidate`) y
+  hay tests de las propiedades con ediciones al azar. Las versiones anteriores descartan el campo y la unión lo
+  recupera: no hizo falta subir `v`. Guardar con el mismo nombre (sin tildes ni mayúsculas) actualiza.
+- **Fotos solo en el dispositivo, en IndexedDB** (`repartito-fotos`, clave = id del gasto, índice por grupo), sin
+  tocar el modelo (ni `hasPhoto`). Se guardan como `data:image/jpeg` (+33 % por el base64, a cambio de no tocar la
+  CSP ni convertir al pintar). Sin dependencias nuevas: el envoltorio de IndexedDB está detrás de la interfaz
+  `PhotoStore` y los tests usan `memoryPhotoStore` (por eso no hace falta `fake-indexeddb`).
+- **Recordatorio**: «Recordar»/«Avisar» sustituye a «Copiar» en las transferencias en las que estás tú (con copia
+  como alternativa); las demás siguen con «Copiar». `shareLink` acepta ya `url` opcional.
+
 ## Trampas conocidas
 
 - GitHub Pages no permite cabeceras propias: la CSP va en `<meta>` (no admite `frame-ancestors`).
@@ -40,6 +51,14 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 - La demo no llama «Tú» a nadie («Marta pagó a Tú»): usa «Alex» y la app marca «(tú)».
 - Con `bash -e`, una línea `! comando` en mitad de un paso de Actions **no** hace fallar el paso: solo cuenta si es la última línea. Usa `if …; then exit 1; fi`.
 - En el equipo de desarrollo (arm64) no hay SDK de Android: el APK solo se compila en el CI (rama + PR).
+- happy-dom no tiene canvas ni IndexedDB: la compresión se prueba con un codificador falso (`shrink`) y en la
+  interfaz se simula `compressPhoto` con `vi.mock`; sin IndexedDB, la app no ofrece adjuntar fotos.
+- `createImageBitmap(file)` respeta la orientación EXIF; no usar `URL.createObjectURL` para pintar (la CSP no admite
+  `blob:` en `img-src`).
+- En Capacitor, `capture` en el `<input type="file">` lanzaría la cámara y pediría `CAMERA` si se declarara: no usarlo.
+- El panel de navegador integrado de Claude no registra el service worker («An unknown error occurred when
+  fetching the script», una vez por carga): es del entorno, no de la app.
+- `git checkout <archivo>` para deshacer una prueba de mutación devuelve el archivo a HEAD: copia antes o usa `git stash`.
 - `sw.js` en `public/` lleva `VERSION = 'dev'` e `INTEGRITY = {}`: sin build no cachea nada. El CI comprueba que el build los reescribe.
 
 ## Tras publicar (2026-10-25)
@@ -62,3 +81,13 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 ## v0.2.1 publicada (2026-10-26)
 
 - Hallazgos de la revisión externa P1-P4 corregidos con tests (PR #2). Release con APK/AAB firmados (misma huella de certificado que la v0.2.0, así que se instala encima) y atestaciones comprobadas.
+
+## v0.3.0 en rama (2026-10-27)
+
+- Rama `feat/v0.3` subida, **sin PR**: la revisa el lead. Atajos (Repetir, plantillas), recordatorio amable y fotos
+  de tickets locales. 128 tests en verde (lint, tipos, build web y `build:android`).
+- Probado en el navegador integrado a 375 y 320 px, tema oscuro: compresión (4000×3000 → 1600×1200, 328 KB),
+  miniatura, vista en grande, quitar, borrar con el gasto y con «Borrar todo», plantillas y recordatorio (copia).
+  Sin errores de CSP ni de Trusted Types.
+- Pendiente de comprobar en un móvil real: el menú de compartir de Android con el recordatorio y el selector de
+  fotos dentro de la app (el emulador del CI no lo cubre).

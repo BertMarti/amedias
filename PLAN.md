@@ -32,20 +32,27 @@ ninguna de esas trabas.
 - [x] Compartir y guardar copias o CSV con el menú del sistema.
 - [x] CI que la prueba en un emulador y publica APK y AAB firmados, con atestación de procedencia.
 
-## v0.3.0 «Bizum» — siguiente
+## v0.3.0 «Bizum» — publicada
 
-- [ ] **Origen propio** para la web (organización o subdominio `repartito`): adelantado tras la revisión externa (I6, P1).
+- [x] Recordatorio amable para pedir lo que te deben (texto listo para WhatsApp, sin el enlace del grupo).
+- [x] Fotos de tickets guardadas solo en el dispositivo (IndexedDB), nunca en el enlace, las copias ni el CSV.
+- [x] Atajos: «Repetir hoy» en cualquier gasto y plantillas por grupo («Súper», «Bombona», «Luz») que se sincronizan.
 
-- [ ] Abrir los enlaces `#g=` directamente en la app (App Links, requiere `assetlinks.json` en la raíz del dominio).
-- [ ] Publicar en Google Play (el AAB ya se genera en cada versión).
+## v0.4.0 «Casa propia» — siguiente (depende del autor)
 
-- [ ] **Origen propio** (subdominio) para no compartir `localStorage`, Cache API ni service workers con otras webs de `bertmarti.github.io` (amenazas I6, I7).
-- [ ] Recordatorio amable para pedir lo que te deben (texto listo para WhatsApp).
-- [ ] Fotos de tickets guardadas solo en el dispositivo (IndexedDB), nunca en el enlace.
-- [ ] Varias monedas en un mismo grupo (viajes) con cambio manual.
-- [ ] Atajos: «repetir el último gasto», plantillas («Súper», «Bombona»).
+- [ ] **Origen propio** para la web (amenazas I6, I7, revisión externa P1): no compartir `localStorage`, Cache API
+  ni service workers con otras webs de `bertmarti.github.io`. Necesita que el autor cree una **organización de
+  GitHub** (`repartito.github.io`) o apunte un **subdominio** propio a Pages; luego, cambiar `base`, `PUBLIC_URL` y
+  migrar los datos (el navegador no los pasa de un origen a otro: copia de seguridad o enlace).
+- [ ] **Abrir los enlaces `#g=` directamente en la app** (App Links): necesita servir `/.well-known/assetlinks.json`
+  en la **raíz del dominio** (imposible en `bertmarti.github.io/repartito/`; posible con el origen propio) con la
+  huella del certificado de firma.
+- [ ] **Publicar en Google Play**: el AAB firmado ya se genera en cada versión; falta la **cuenta de desarrollador
+  del autor** (alta de pago único y verificación de identidad) y la ficha de la tienda.
+- [ ] **Varias monedas** en un mismo grupo (viajes) con cambio manual: cambia el modelo (moneda por gasto y tipo de
+  cambio fijado al apuntarlo), los saldos y la fusión; necesita su propio diseño y tests de las propiedades.
 
-## v0.3.0 «Juntos» — más adelante
+## «Juntos» — más adelante
 
 - [ ] Sincronización en vivo opcional entre dispositivos (WebRTC o un relé cifrado de extremo a extremo).
 - [ ] Widgets e integración con el menú de compartir del móvil (Share Target).

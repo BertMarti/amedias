@@ -19,7 +19,10 @@ export type IncomingSource =
 export type Layer =
   | { t: 'group'; id: string; tab: Tab }
   | { t: 'newGroup' }
-  | { t: 'expense'; groupId: string; expenseId?: string; kind?: 'expense' | 'transfer' }
+  /** `repeatOf`: gasto nuevo copiado de otro («Repetir»), con fecha de hoy. */
+  | { t: 'expense'; groupId: string; expenseId?: string; kind?: 'expense' | 'transfer'; repeatOf?: string }
+  /** Foto de un ticket a pantalla completa (la imagen ya está en memoria: no pasa por el historial). */
+  | { t: 'photo'; src: string; title: string }
   | { t: 'recurring'; groupId: string; recurringId?: string }
   | { t: 'groupSettings'; groupId: string }
   | { t: 'whoami'; groupId: string }

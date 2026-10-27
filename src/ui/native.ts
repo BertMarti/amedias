@@ -17,14 +17,17 @@ export function appUrl(): string {
 /** ¿Hay un menú de compartir del sistema? (El WebView de Android no trae `navigator.share`.) */
 export const canShare = (): boolean => NATIVE || typeof navigator.share === 'function';
 
-/** Abre el menú de compartir del sistema con un texto y un enlace. */
-export async function shareLink(title: string, text: string, url: string): Promise<void> {
+/**
+ * Abre el menú de compartir del sistema con un texto y, si se pasa, un enlace. Sin `url` no se añade ninguno (los
+ * recordatorios de pago no llevan el enlace del grupo).
+ */
+export async function shareLink(title: string, text: string, url?: string): Promise<void> {
   if (NATIVE) {
     const { Share } = await import('@capacitor/share');
-    await Share.share({ title, text, url, dialogTitle: title }).catch(() => undefined);
+    await Share.share({ title, text, ...(url ? { url } : {}), dialogTitle: title }).catch(() => undefined);
     return;
   }
-  await navigator.share({ title, text, url }).catch(() => undefined);
+  await navigator.share({ title, text, ...(url ? { url } : {}) }).catch(() => undefined);
 }
 
 /**

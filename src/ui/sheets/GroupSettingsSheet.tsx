@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { addMember, balances, decimals, liveExpenses, LIMITS, renameGroup, updateMember, type Currency, type Group, type Member } from '../../core';
+import { addMember, balances, decimals, deleteTemplate, liveExpenses, liveTemplates, LIMITS, renameGroup, updateMember, type Currency, type Group, type Member } from '../../core';
 import { useI18n } from '../../i18n';
-import { Avatar, FieldNote } from '../bits';
+import { Avatar, CategoryTile, FieldNote } from '../bits';
 import { useApp } from '../context';
 import { Icon } from '../icons';
 import type { SheetProps } from '../Layers';
@@ -60,6 +60,45 @@ function MemberRow({ group, m, me }: { group: Group; m: Member; me?: string }) {
         <Icon name="trash" size={18} />
       </button>
     </li>
+  );
+}
+
+/** Plantillas del grupo: se crean desde un gasto («Guardar como plantilla») y aquí se pueden borrar. */
+function Templates({ group }: { group: Group }) {
+  const { t, money, locale } = useI18n();
+  const { commit, toast } = useApp();
+  const list = liveTemplates(group, locale);
+  return (
+    <section className="form" aria-labelledby="gs-templates">
+      <h3 id="gs-templates" className="section-title">
+        {t('template.title')}
+      </h3>
+      <p className="muted small">{t('template.hint')}</p>
+      {list.length === 0 ? (
+        <p className="muted small">{t('template.empty')}</p>
+      ) : (
+        <ul className="template-list">
+          {list.map((x) => (
+            <li key={x.id} className="template-row">
+              <CategoryTile category={x.category} size="sm" />
+              <span className="template-name">{x.title}</span>
+              <span className="template-amount">{x.amount !== undefined ? money(x.amount, group.currency) : t('template.free')}</span>
+              <button
+                type="button"
+                className="icon-btn icon-btn--sm"
+                aria-label={t('template.delete', { name: x.title })}
+                onClick={() => {
+                  commit(group.id, (g) => deleteTemplate(g, x.id));
+                  toast(t('template.deleted'));
+                }}
+              >
+                <Icon name="trash" size={18} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -158,6 +197,8 @@ export function GroupSettingsSheet({ active, onClose, group }: SheetProps & { gr
           </button>
         </form>
       </section>
+
+      <Templates group={group} />
 
       <section className="danger-zone">
         <button type="button" className="btn btn--ghost btn--danger-text" onClick={askDelete}>

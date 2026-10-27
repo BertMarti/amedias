@@ -24,6 +24,7 @@ import {
 } from '../core';
 import { makeI18n } from '../i18n';
 import type { AppApi, ConfirmSpec, Layer, Tab, ToastTone } from './context';
+import { clearPhotos, deletePhotos, prunePhotos, refreshPhotoIds, removeGroupPhotos } from './photos';
 
 export interface Toast {
   id: number;
@@ -155,6 +156,8 @@ export class AppStore {
     }
     if (this.damaged > 0) this.toast(this.tr().tp('toast.damaged', this.damaged), 'error');
     const last = this.state.settings.lastGroup;
+    // Fotos de gastos que ya no existen (p. ej. borrados en otra pestaña): fuera. Luego, qué gastos tienen foto.
+    void prunePhotos(this.state.groups).catch(() => refreshPhotoIds());
     if (payload) this.setLayers([{ t: 'incoming', source: { kind: 'link', payload } }]);
     else if (last && this.state.groups.some((g) => g.id === last)) this.setLayers([{ t: 'group', id: last, tab: 'gastos' }]);
   };
@@ -212,6 +215,10 @@ export class AppStore {
       return;
     }
     this.persist(this.state.groups.map((x) => (x.id === groupId ? next : x)));
+    // Un gasto borrado se lleva su foto (que solo vive en este dispositivo).
+    const before = new Map(g.expenses.map((e) => [e.id, e]));
+    const gone = next.expenses.filter((e) => e.deleted && before.get(e.id)?.deleted !== true).map((e) => e.id);
+    void deletePhotos(gone).catch(() => undefined);
   };
 
   /** Añade o fusiona grupos de fuera. Los que darían problemas (ver `incomingProblem`) no se tocan. */
@@ -235,12 +242,17 @@ export class AppStore {
         added++;
       }
     }
-    if (added + merged > 0) this.persist(groups);
+    if (added + merged > 0) {
+      this.persist(groups);
+      // Los borrados que llegan al fusionar también se llevan las fotos de este dispositivo.
+      if (merged > 0) void prunePhotos(groups).catch(() => undefined);
+    }
     return { added, merged, rejected };
   };
 
   removeGroup = (id: string) => {
     this.persist(this.state.groups.filter((g) => g.id !== id));
+    void removeGroupPhotos(id).catch(() => undefined);
     const me = { ...this.state.settings.me };
     delete me[id];
     const { lastGroup, ...rest } = this.state.settings;
@@ -249,7 +261,9 @@ export class AppStore {
 
   removeAll = () => {
     this.persist([]);
-    // «Borrar todo» es todo: también lo que quedara con el nombre antiguo («a medias»).
+    // «Borrar todo» es todo: también las fotos de los tickets…
+    void clearPhotos().catch(() => undefined);
+    // …y lo que quedara con el nombre antiguo («a medias»).
     clearLegacyStorage();
     try {
       for (const k of damagedKeys()) localStorage.removeItem(k);

@@ -1,5 +1,5 @@
-/** Grupo de ejemplo: un piso de tres personas con dos meses de gastos y el alquiler como gasto fijo. */
-import { addExpense, addPayment, addRecurring, materializeRecurring, newGroup, today, type Category, type Group } from '../core';
+/** Grupo de ejemplo: un piso de tres personas con dos meses de gastos, el alquiler como gasto fijo y dos plantillas. */
+import { addExpense, addPayment, addRecurring, materializeRecurring, newGroup, saveTemplate, today, type Category, type Group } from '../core';
 import type { Lang } from '../i18n';
 import { addMonths } from './util';
 
@@ -60,5 +60,9 @@ export function buildDemo(lang: Lang): { group: Group; meId: string } {
     day: 1,
     startMonth: lastMonth,
   });
+  // Plantillas: el súper (el importe cambia cada vez) y la bombona (siempre lo mismo).
+  const all = { mode: 'equal' as const, among: [...ids] };
+  g = saveTemplate(g, { title: lang === 'es' ? 'Súper' : 'Groceries', paidBy: ids[0], split: all, category: 'compra' });
+  g = saveTemplate(g, { title: lang === 'es' ? 'Bombona' : 'Gas bottle', amount: 2200, paidBy: ids[0], split: all, category: 'casa' });
   return { group: materializeRecurring(g, now).group, meId: ids[0] };
 }

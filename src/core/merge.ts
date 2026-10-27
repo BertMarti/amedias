@@ -1,8 +1,8 @@
 import { decimals } from './money';
-import type { Expense, Group, Member, Recurring } from './types';
+import type { Expense, Group, Member, Recurring, Template } from './types';
 import { FUTURE_SLACK_MS, latestEdit, revalidate } from './validate';
 
-type Entity = Member | Expense | Recurring;
+type Entity = Member | Expense | Recurring | Template;
 
 /**
  * Gana la versión editada más tarde; si empatan, la mayor en orden de texto JSON (determinista: da
@@ -42,6 +42,7 @@ export function mergeGroups(a: Group, b: Group): Group {
     members: unionById(a.members, b.members).sort((x, y) => (x.id < y.id ? -1 : 1)),
     expenses: unionById(a.expenses, b.expenses).sort((x, y) => (x.id < y.id ? -1 : 1)),
     recurring: unionById(a.recurring, b.recurring).sort((x, y) => (x.id < y.id ? -1 : 1)),
+    templates: unionById(a.templates, b.templates).sort((x, y) => (x.id < y.id ? -1 : 1)),
   };
 }
 
@@ -58,6 +59,8 @@ export interface MergeSummary {
   removedMembers: number;
   /** Gastos fijos nuevos, cambiados o borrados. */
   recurring: number;
+  /** Plantillas nuevas, cambiadas o borradas. */
+  templates: number;
   /** Cambia el nombre o el icono del grupo. */
   header: boolean;
   /** Cambia la moneda del grupo. */
@@ -86,6 +89,7 @@ export function mergePreview(local: Group, incoming: Group): MergeSummary {
   const e = diff(local.expenses, incoming.expenses);
   const m = diff(local.members, incoming.members);
   const r = diff(local.recurring, incoming.recurring);
+  const tp = diff(local.templates, incoming.templates);
   return {
     // Se compara con `local` normalizado (la fusión ordena por id), no con el original.
     upToDate: JSON.stringify(merged) === JSON.stringify(mergeGroups(local, local)),
@@ -96,6 +100,7 @@ export function mergePreview(local: Group, incoming: Group): MergeSummary {
     renamedMembers: m.changed,
     removedMembers: m.removed,
     recurring: r.added + r.changed + r.removed,
+    templates: tp.added + tp.changed + tp.removed,
     header: merged.name !== local.name || merged.emoji !== local.emoji,
     currency: merged.currency !== local.currency,
   };

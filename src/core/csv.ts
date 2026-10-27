@@ -181,6 +181,7 @@ export function importSplitwise(text: string, newId: () => Id = () => crypto.ran
     members,
     expenses,
     recurring: [],
+    templates: [],
     createdAt: now,
     updatedAt: now,
   });

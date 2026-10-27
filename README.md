@@ -62,7 +62,15 @@ porcentajes. Siempre cuadra **al céntimo**: nunca sobra ni falta nada.
 El alquiler, internet o una suscripción: dilo una vez y cada mes aparece solo el día que toca.
 
 **🤝 Quedar en paz con el mínimo de pagos**<br>
-Si sois cinco, no hacen falta veinte Bizums: la app calcula la forma más corta de saldar todo.
+Si sois cinco, no hacen falta veinte Bizums: la app calcula la forma más corta de saldar todo. Y si alguien
+te debe, un toque en **Recordar** te deja un mensaje amable listo para WhatsApp.
+
+**⚡ Apuntar en dos toques**<br>
+**Repetir hoy** copia un gasto con la fecha de hoy, y las **plantillas** («Súper», «Bombona», «Luz») rellenan
+el gasto por ti. Las plantillas se comparten con el grupo.
+
+**🧾 La foto del ticket**<br>
+Adjunta una foto a cualquier gasto. Se queda **solo en tu móvil**: no viaja en los enlaces ni en las copias.
 
 **📊 Saber en qué se va el dinero**<br>
 Un resumen por meses y por categorías (súper, casa, facturas, ocio…).
@@ -116,6 +124,7 @@ cambios de los dos, **sin perder nada y sin duplicar nada**.
   tocar tus datos.
 - **Revisada por un auditor independiente** antes de publicarla: todo lo que encontró está corregido.
 - **Copia de seguridad** en un archivo cuando quieras, desde **Ajustes**.
+- **Las fotos de los tickets no salen de tu móvil**: ni en los enlaces, ni en las copias, ni en el CSV.
 
   </td>
   <td width="40%" align="center">
@@ -184,6 +193,14 @@ mismo gasto, se queda la edición más reciente.
 <summary><b>¿Quién puede ver mis gastos?</b></summary>
 
 Solo quien tenga tu móvil o un enlace que hayas compartido (y su contraseña, si le pusiste una).
+</details>
+
+<details>
+<summary><b>¿Por qué no le llegan a los demás las fotos de los tickets?</b></summary>
+
+Porque las fotos se guardan solo en el móvil donde las haces: así nadie más ve tus tickets y los enlaces
+siguen siendo pequeños. Si quieres enseñar una, mándala por el chat como cualquier otra foto. Ojo: la copia
+de seguridad tampoco las incluye.
 </details>
 
 <details>

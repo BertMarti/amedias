@@ -79,6 +79,24 @@ export interface Recurring {
   deleted?: boolean;
 }
 
+/**
+ * Plantilla para apuntar en dos toques un gasto habitual («Súper», «Bombona», «Luz»). Es del grupo: viaja en los
+ * enlaces y se fusiona igual que lo demás (id UUID, `updatedAt` y lápidas).
+ */
+export interface Template {
+  id: Id;
+  /** Nombre de la plantilla y concepto del gasto. */
+  title: string;
+  /** Importe habitual. Sin él, se escribe al usarla (la luz cambia cada mes). */
+  amount?: Cents;
+  paidBy: Id;
+  /** Sin importe, el reparto no puede ser por importes exactos. */
+  split: Split;
+  category: Category;
+  updatedAt: number;
+  deleted?: boolean;
+}
+
 export interface Group {
   /** Versión del formato, para migraciones. */
   v: 1;
@@ -89,6 +107,8 @@ export interface Group {
   members: Member[];
   expenses: Expense[];
   recurring: Recurring[];
+  /** Plantillas de gasto (v0.3.0). Los datos anteriores no las traen: se leen como lista vacía. */
+  templates: Template[];
   createdAt: number;
   /** Momento del último cambio del nombre, emoji o moneda. */
   updatedAt: number;
@@ -105,6 +125,8 @@ export const LIMITS = {
   members: 50,
   expenses: 20_000,
   recurring: 100,
+  /** Plantillas, lápidas incluidas. */
+  templates: 100,
   text: 120,
   name: 40,
   /** 10 millones en la unidad de la moneda. */

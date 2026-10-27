@@ -4,13 +4,14 @@ import { useI18n } from '../../i18n';
 import { CategoryTile } from '../bits';
 import { useApp } from '../context';
 import { Icon } from '../icons';
+import { usePhotoIds } from '../photos';
 import { memberName } from '../util';
 
 function fold(s: string): string {
   return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 }
 
-function ExpenseRow({ group, e, me }: { group: Group; e: Expense; me?: string }) {
+function ExpenseRow({ group, e, me, photo }: { group: Group; e: Expense; me?: string; photo: boolean }) {
   const { t, money, date, cat } = useI18n();
   const { push, highlight } = useApp();
   const share = me ? (shareOf(e.amount, e.split)[me] ?? 0) : null;
@@ -39,6 +40,12 @@ function ExpenseRow({ group, e, me }: { group: Group; e: Expense; me?: string })
             {', '}
             {date(e.date)}
             {!transfer && <span className="sr-only">, {cat(e.category)}</span>}
+            {photo && (
+              <span className="tag tag--photo">
+                <Icon name="camera" size={12} />
+                <span className="sr-only">{t('expense.withPhoto')}</span>
+              </span>
+            )}
             {e.recurringId && (
               <span className="tag">
                 <Icon name="repeat" size={12} />
@@ -69,6 +76,7 @@ export function ExpensesTab({ group }: { group: Group }) {
   const [q, setQ] = useState('');
   const [limit, setLimit] = useState(PAGE);
   const me = settings.me[group.id];
+  const withPhoto = usePhotoIds();
   const all = liveExpenses(group).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
   const needle = fold(q.trim());
   const list = needle
@@ -126,7 +134,7 @@ export function ExpensesTab({ group }: { group: Group }) {
           </h2>
           <ul className="expense-list">
             {m.items.map((e) => (
-              <ExpenseRow key={e.id} group={group} e={e} me={me} />
+              <ExpenseRow key={e.id} group={group} e={e} me={me} photo={withPhoto.has(e.id)} />
             ))}
           </ul>
         </section>

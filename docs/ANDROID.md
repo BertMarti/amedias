@@ -18,6 +18,10 @@ No hay una segunda base de código.
 | Enlaces que se comparten | Dirección de la web | Siempre la web pública (`PUBLIC_URL`), nunca `localhost` |
 | Copia en la nube de Google | — | **Desactivada** (`allowBackup=false` y reglas de extracción vacías): los gastos no salen del móvil |
 
+Fotos de tickets (v0.3.0): `<input type="file" accept="image/*">` **sin** `capture`. Así Capacitor abre el selector
+del sistema (que ya ofrece la cámara por su cuenta) y la app no necesita el permiso `CAMERA`. Las fotos se guardan
+en el IndexedDB del WebView, dentro de los datos privados de la app, excluidos de la copia en la nube.
+
 Barras del sistema: `SystemBars.insetsHandling = native`. El CSS ya usa `env(safe-area-inset-*)` y el modo
 por defecto (`css`) inyectaba variables que no se usan, a veces antes de que existiera el documento (error de
 consola que detectó la prueba en emulador).
