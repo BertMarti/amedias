@@ -45,6 +45,7 @@ function diffParts(p: MergeSummary, incoming: Group, t: ReturnType<typeof useI18
     [p.renamedMembers, 'incoming.renamedMembers', false],
     [p.removedMembers, 'incoming.removedMembers', true],
     [p.recurring, 'incoming.recurring', false],
+    [p.templates, 'incoming.templates', false],
   ];
   const parts = counts.filter(([n]) => n > 0).map(([n, key, bad]) => ({ text: tp(key, n), bad }));
   if (p.header) parts.push({ text: t('incoming.header'), bad: false });

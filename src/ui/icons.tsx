@@ -84,6 +84,13 @@ const P: Record<string, ReactNode> = {
       <path d="M12 11v5.5M12 7.6v.1" />
     </>
   ),
+  camera: (
+    <>
+      <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3l1.4-2.2h5.6L16.2 7h2.3A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5z" />
+      <circle cx="12" cy="12.8" r="3.3" />
+    </>
+  ),
+  bookmark: <path d="M7 4h10v16l-5-3.6L7 20z" />,
   // Categorías
   compra: <path d="M4 9.5h16l-1.6 9.6a2 2 0 0 1-2 1.7H7.6a2 2 0 0 1-2-1.7zM8.5 9.5l3-5.5M15.5 9.5l-3-5.5M9.5 13.5v3.5M14.5 13.5v3.5" />,
   casa: <path d="M3.5 11 12 4l8.5 7M6 9.5V20h12V9.5M10 20v-5h4v5" />,

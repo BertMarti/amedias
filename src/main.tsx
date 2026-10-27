@@ -12,6 +12,7 @@ import './styles/tabs.css';
 import './styles/summary.css';
 import './styles/sheets.css';
 import './styles/sheet-parts.css';
+import './styles/shortcuts.css';
 import App from './App';
 import { NATIVE } from './ui/native';
 import { listenForInstall, registerServiceWorker } from './ui/platform';

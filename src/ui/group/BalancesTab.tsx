@@ -4,6 +4,7 @@ import { Avatar } from '../bits';
 import { Confetti } from '../Confetti';
 import { useApp } from '../context';
 import { Icon } from '../icons';
+import { canShare, shareLink } from '../native';
 import { activeMembers, copyText, isSettled, memberName, vibrate } from '../util';
 
 function TransferRow({ group, tr, me }: { group: Group; tr: Transfer; me?: string }) {
@@ -13,7 +14,15 @@ function TransferRow({ group, tr, me }: { group: Group; tr: Transfer; me?: strin
   const to = memberName(group, tr.to);
   const amount = money(tr.amount, group.currency);
   const vars = { from, to, amount, group: group.name };
-  const text = tr.to === me ? t('settle.copy.toMe', vars) : tr.from === me ? t('settle.copy.fromMe', vars) : t('settle.copy.neutral', vars);
+  const toMe = me !== undefined && tr.to === me;
+  const fromMe = me !== undefined && tr.from === me;
+  // Recordatorio amable, listo para WhatsApp: solo nombres, importe y nombre del grupo. Nunca el enlace del grupo.
+  const reminder = toMe ? t('remind.toMe', vars) : t('remind.fromMe', vars);
+
+  const remind = async () => {
+    if (canShare()) await shareLink(t('remind.dialog'), reminder);
+    else toast((await copyText(reminder)) ? t('toast.reminderCopied') : t('toast.copyFailed'), 'info');
+  };
 
   const markPaid = () => {
     let settled = false;
@@ -41,15 +50,22 @@ function TransferRow({ group, tr, me }: { group: Group; tr: Transfer; me?: strin
         <span className="amount transfer-amount">{amount}</span>
       </div>
       <div className="transfer-actions">
-        <button
-          type="button"
-          className="btn btn--ghost btn--sm"
-          onClick={async () => toast((await copyText(text)) ? t('toast.copied') : t('toast.copyFailed'), 'info')}
-          aria-label={t('settle.copyAria', vars)}
-        >
-          <Icon name="copy" size={18} />
-          {t('settle.copy')}
-        </button>
+        {toMe || fromMe ? (
+          <button type="button" className="btn btn--soft btn--sm" onClick={() => void remind()} aria-label={toMe ? t('remind.askAria', vars) : t('remind.tellAria', vars)}>
+            <Icon name="share" size={18} />
+            {toMe ? t('remind.ask') : t('remind.tell')}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="btn btn--ghost btn--sm"
+            onClick={async () => toast((await copyText(t('settle.copy.neutral', vars))) ? t('toast.copied') : t('toast.copyFailed'), 'info')}
+            aria-label={t('settle.copyAria', vars)}
+          >
+            <Icon name="copy" size={18} />
+            {t('settle.copy')}
+          </button>
+        )}
         <button type="button" className="btn btn--mint btn--sm" onClick={markPaid} aria-label={t('settle.markAria', vars)}>
           <Icon name="check" size={18} />
           {t('settle.mark')}
