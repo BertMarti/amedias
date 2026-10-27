@@ -26,7 +26,7 @@ https://bertmarti.github.io/repartito/#g=1e.<base64url(salt16 ‖ iv12 ‖ AES-2
 
 ## La fusión (`src/core/merge.ts`)
 
-Cada persona, gasto y gasto fijo tiene un `id` (UUID) y un `updatedAt`. Fusionar es:
+Cada persona, gasto, gasto fijo y plantilla tiene un `id` (UUID) y un `updatedAt`. Fusionar es:
 
 1. Unir por `id`.
 2. Si los dos lados tienen el mismo `id`, gana el `updatedAt` mayor. Si empatan, gana el mayor en orden
@@ -39,7 +39,7 @@ lleguen los enlaces o si llegan repetidos.
 ### Antes de aceptar
 
 La app enseña **todo** lo que cambiaría: gastos nuevos, cambiados y borrados; personas nuevas, renombradas
-y quitadas; cambios en los gastos fijos; nombre, icono y moneda. Lo que borra o cambia la moneda va en rojo.
+y quitadas; cambios en los gastos fijos y en las plantillas; nombre, icono y moneda. Lo que borra o cambia la moneda va en rojo.
 Y no deja fusionar (con el motivo) si:
 
 - trae ediciones fechadas a más de 24 h vista (ganarían a las tuyas durante meses);
@@ -57,6 +57,23 @@ El alquiler de marzo lo pueden generar dos móviles por su cuenta. El id de cada
 cualquier edición manual posterior gana a ambas. Un id `~AAAA-MM` solo es válido si el gasto fijo existe y
 el mes no pasa de dos meses vista (así nadie puede «anular» por adelantado cobros futuros).
 
+### Plantillas (v0.3.0)
+
+Las plantillas («Súper», «Bombona») son del grupo: viajan en los enlaces y en las copias y se fusionan como los
+gastos fijos (unión por id, gana el `updatedAt` mayor, borrar es una lápida). Guardar otra vez una plantilla con el
+mismo nombre la actualiza en lugar de crear otra. Si dos móviles crean a la vez «Súper» sin haberse sincronizado,
+quedan dos (ids distintos): se borra una y la lápida viaja.
+
+**Compatibilidad.** Las versiones anteriores descartan el campo `templates` (la validación solo conserva lo que
+conoce); al volver a fusionar con una copia nueva, las plantillas vuelven a aparecer porque la fusión es una unión.
+Un grupo sin `templates` se lee como lista vacía. No hace falta subir la versión del formato (`v: 1`).
+
+### Lo que NO viaja
+
+Las **fotos de los tickets** se guardan solo en el dispositivo (IndexedDB, con el id del gasto como clave) y nunca
+forman parte del grupo: ni en el enlace, ni en el archivo, ni en el CSV. El JSON del gasto no cambia. Cuando un
+borrado llega al fusionar, la foto de ese gasto también se borra en este dispositivo.
+
 ## Validación (`src/core/validate.ts`)
 
 Lo que llega de un enlace, un archivo o el propio almacenamiento se reconstruye campo a campo:
@@ -68,7 +85,9 @@ Lo que llega de un enlace, un archivo o el propio almacenamiento se reconstruye 
 - fechas válidas;
 - textos sin caracteres de control ni de formato invisibles (marcas bidireccionales, etiquetas), recortados;
 - el icono tiene que empezar por un emoji;
-- topes de 50 personas, 20 000 gastos y 100 gastos fijos.
+- topes de 50 personas, 20 000 gastos, 100 gastos fijos y 100 plantillas (lápidas incluidas);
+- las plantillas pueden no llevar importe, pero entonces su reparto no puede ser por importes exactos y los
+  porcentajes tienen que sumar 100 %.
 
 Cualquier fallo rechaza el grupo entero con un mensaje genérico, sin eco de los datos.
 

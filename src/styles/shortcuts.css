@@ -176,3 +176,7 @@
 .tag--photo {
   padding: 0 5px;
 }
+
+.photo-field .field-note .icon {
+  flex: none;
+}

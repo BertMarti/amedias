@@ -4,6 +4,24 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ## [Sin publicar]
 
+## [0.3.0] - 2026-10-27
+
+### Añadido
+
+- **Repetir hoy**: en cualquier gasto, abre uno nuevo igual con la fecha de hoy.
+- **Plantillas** de gasto («Súper», «Bombona», «Luz»): se guardan desde el formulario («Guardar como plantilla»), se usan con un toque al apuntar un gasto y se borran desde «Grupo y personas». Son del grupo: viajan en los enlaces y se fusionan como lo demás. El grupo de ejemplo trae dos.
+- **Recordatorio amable** en «Cómo quedar a cero»: «Recordar» (si te deben) o «Avisar» (si debes tú) abre el menú de compartir del sistema con un mensaje listo para WhatsApp; sin menú de compartir, lo copia.
+- **Foto del ticket** en cada gasto, guardada solo en el dispositivo, con miniatura, vista en grande y botón para quitarla. Se reduce en el propio móvil (≤ 1600 px, ≤ 400 KB). En la lista, un icono marca los gastos con foto.
+- La vista previa al fusionar enseña los cambios en plantillas.
+
+### Seguridad
+
+- Las fotos viven en IndexedDB y nunca entran en el grupo: ni en enlaces, ni en copias de seguridad, ni en el CSV (tests). Se borran al borrar el gasto (también si el borrado llega al fusionar), el grupo o todos los datos.
+- La CSP no cambia: las fotos se enseñan como `data:` (ya permitido) y se abren sin URL `blob:`.
+- La app de Android sigue sin pedir ningún permiso: el selector de fotos no usa `capture` (que pediría la cámara).
+- Las plantillas pasan la misma validación estricta que el resto del grupo (UUID, límites, repartos que cuadran) y la fusión sigue siendo conmutativa, asociativa e idempotente (tests con ediciones al azar).
+- El recordatorio solo lleva nombres, importe y nombre del grupo: nunca el enlace.
+
 ## [0.2.1] - 2026-10-25
 
 ### Seguridad

@@ -66,6 +66,19 @@ La app de Android ([docs/ANDROID.md](ANDROID.md)) es la misma web dentro de un A
 | A8 | Gradle o su wrapper comprometidos | `wrapper-validation` y `distributionSha256Sum` fijado; actions por SHA. | `android.yml`, `gradle-wrapper.properties` |
 | A9 | El build web arrastra código nativo | Los plugins de Capacitor se sustituyen por un módulo vacío en la web. | `vite.config.ts`, `native-stub.ts` |
 
+## Fotos de tickets, plantillas y recordatorios (v0.3.0)
+
+| # | Amenaza | Mitigación | Dónde |
+|---|---|---|---|
+| L1 | **Las fotos de los tickets se filtran** en un enlace, una copia de seguridad o el CSV | Las fotos nunca forman parte del grupo: viven en IndexedDB (`repartito-fotos`) con el id del gasto como clave, y el JSON del gasto no cambia (ni siquiera una marca `hasPhoto`). Enlaces, copias y CSV se generan solo con el grupo. | `photos.ts`, test «nunca va en el grupo, los enlaces, las copias ni el CSV» |
+| L2 | **Restos de fotos** tras borrar un gasto, un grupo o todos los datos | Borrar el gasto borra su foto (`commit` detecta las lápidas nuevas); un borrado que llega al fusionar también (`prunePhotos`, además al abrir la app); «Eliminar el grupo» y «Borrar todos los datos» las borran. Las fotos de grupos que no se conocen (p. ej. apartados por dañados) no se tocan. | `store.ts`, `photos.ts` (`orphanPhotos`), tests de interfaz |
+| L3 | Una imagen manipulada (enorme, bomba de píxeles, SVG con script) | Solo `image/*` de hasta 40 MB; se decodifica con `createImageBitmap` y se vuelve a codificar en JPEG con un canvas (≤ 1600 px, ≤ 400 KB), así que nunca se guarda el archivo original. Al leer de IndexedDB solo se acepta `data:image/jpeg` o `data:image/webp` en base64 y de tamaño acotado; SVG y cualquier otra cosa se descartan. Se pinta en un `<img>`, que no ejecuta scripts. | `image.ts`, `photos.ts` (`isPhotoData`), tests |
+| L4 | Aflojar la CSP para enseñar fotos | **La CSP no cambia.** Las fotos se enseñan como `data:` (ya permitido en `img-src`) y se abren sin URL `blob:` (`createImageBitmap` lee el archivo directamente; si falla, se carga como `data:`). | `vite.config.ts`, `image.ts`, test de CSP |
+| L5 | El selector de fotos hace que la app de Android pida la cámara | `<input type="file" accept="image/*">` **sin** `capture`: Capacitor abre el selector del sistema y no pide `CAMERA`. El CI sigue comprobando que el APK no declara ningún permiso. | `PhotoField.tsx`, `android.yml` |
+| L6 | En la web, otras páginas del mismo origen leen las fotos (I6) | IndexedDB es por origen, igual que `localStorage`: mismo riesgo y misma solución de fondo (origen propio, PLAN). En la app de Android el origen es propio (A1) y `allowBackup=false` excluye también IndexedDB (A3). | PLAN |
+| L7 | El recordatorio de pago revela más de la cuenta | Solo nombres, importe y nombre del grupo; **nunca** el enlace ni otros datos (test). Es un mensaje que la persona decide enviar desde el menú del sistema. | `BalancesTab.tsx`, test «mensaje sin enlace» |
+| T11 | **Plantillas manipuladas** en un enlace (ids raros, repartos que no cuadran, miles de plantillas, fechas adelantadas) | Misma validación estricta que gastos y fijos: UUID, quien paga y el reparto apuntan a personas del grupo, con importe el reparto cuadra, sin importe no hay importes exactos y los porcentajes suman 100 %, tope de 100 (lápidas incluidas). Cuentan para `latestEdit` (F4) y para los límites al fusionar (F1); la vista previa enseña sus cambios (F2). | `validate.ts`, `merge.ts`, tests «plantillas» |
+
 ## Revisión externa (después de la v0.2.0)
 
 Otra sesión revisó el código en solo lectura buscando lo que no cubrían F1-F15 ni A1-A9:
@@ -85,6 +98,8 @@ Otra sesión revisó el código en solo lectura buscando lo que no cubrían F1-F
   [SINCRONIZACION.md](SINCRONIZACION.md#límites-del-modelo)); con un margen de 24 h.
 - **Origen compartido con otras webs del autor en `github.io`** (I6, I7) en la web, hasta pasar a un dominio propio. La app de Android no lo tiene (A1).
 - **Instalar el APK fuera de Google Play** obliga a permitir «fuentes desconocidas» para ese archivo; se mitiga con la firma verificable y la atestación (A7).
+- **Las fotos de los tickets no están en las copias de seguridad** (a propósito, L1): al cambiar de móvil o borrar
+  los datos del navegador se pierden. La app lo avisa junto al botón de la foto.
 - **Navegadores sin Trusted Types** (Firefox y Safari antiguos): la CSP sigue bloqueando scripts ajenos; solo
   falta esa capa extra.
 
