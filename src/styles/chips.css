@@ -263,3 +263,9 @@
     scroll-behavior: auto !important;
   }
 }
+
+.tag--fx {
+  background: var(--saffron-soft);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

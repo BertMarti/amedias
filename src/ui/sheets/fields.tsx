@@ -1,45 +1,9 @@
-/** Campos compartidos por las hojas de gasto, pago y gasto fijo. */
+/** Campos compartidos por las hojas de gasto, pago y gasto fijo (el importe está en MoneyField.tsx). */
 import { useId } from 'react';
-import { CATEGORIES, decimals, parseAmount, type Category, type Currency, type Member } from '../../core';
+import { CATEGORIES, type Category, type Member } from '../../core';
 import { useI18n } from '../../i18n';
-import { Avatar, Choice, FieldNote } from '../bits';
+import { Avatar, Choice } from '../bits';
 import { Icon } from '../icons';
-
-const SYMBOLS: Partial<Record<Currency, string>> = { EUR: '€', USD: '$', GBP: '£', JPY: '¥', CHF: 'CHF', MXN: '$', ARS: '$', COP: '$', CLP: '$', PEN: 'S/' };
-
-/** Importe grande: se escribe libre («12,5», «1.234,56») y se enseña ya formateado debajo. */
-export function AmountField({ value, onChange, currency, touched, autoFocus = false }: { value: string; onChange: (v: string) => void; currency: Currency; touched: boolean; autoFocus?: boolean }) {
-  const { t, money } = useI18n();
-  const id = useId();
-  const cents = parseAmount(value, currency);
-  const bad = value.trim() !== '' && cents === null;
-  return (
-    <div className="field amount-field">
-      <label htmlFor={id} className="field-label">
-        {t('expense.amount')}
-      </label>
-      <div className={`amount-input${bad ? ' amount-input--bad' : ''}`}>
-        <span className="amount-symbol" aria-hidden="true">
-          {SYMBOLS[currency] ?? currency}
-        </span>
-        <input
-          id={id}
-          inputMode="decimal"
-          autoComplete="off"
-          placeholder={decimals(currency) ? '0,00' : '0'}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          aria-invalid={bad || (touched && cents === null)}
-          aria-describedby={`${id}-note`}
-          {...(autoFocus ? { 'data-autofocus': true } : {})}
-        />
-      </div>
-      <FieldNote id={`${id}-note`} tone={cents !== null ? 'ok' : bad || touched ? 'error' : 'muted'}>
-        {cents !== null ? money(cents, currency) : bad || touched ? t('expense.amountBad') : t('expense.amountHint')}
-      </FieldNote>
-    </div>
-  );
-}
 
 export function CategoryPicker({ value, onChange }: { value: Category; onChange: (c: Category) => void }) {
   const { t, cat } = useI18n();

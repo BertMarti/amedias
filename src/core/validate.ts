@@ -5,8 +5,9 @@
  * identificadores deben tener formato de UUID (así ninguna clave puede ser `__proto__` ni `constructor`),
  * los textos se recortan y limpian de caracteres de control y los números se acotan.
  */
+import { baseAmount, RATE_MAX, RATE_MIN } from './fx';
 import { splitProblem } from './split';
-import { CATEGORIES, CURRENCIES, LIMITS, type Category, type Currency, type Expense, type Group, type Id, type Member, type Recurring, type Split, type Template } from './types';
+import { CATEGORIES, CURRENCIES, LIMITS, type Category, type Currency, type Expense, type Group, type Id, type Member, type Original, type Recurring, type Split, type Template } from './types';
 
 export class InvalidGroupError extends Error {
   constructor(motivo: string) {
@@ -83,6 +84,32 @@ function checkedSplit(v: unknown, amount: number, members: ReadonlySet<Id>): Spl
   return splitProblem(amount, s, members) ? fail('reparto') : s;
 }
 
+/**
+ * Importe en otra moneda (v0.4.0). La moneda tiene que ser distinta de la del grupo, el tipo de cambio un entero dentro
+ * de los límites y, sobre todo, `amount` tiene que ser **exactamente** la conversión de `original`: se recalcula, así que
+ * un enlace manipulado no puede enseñar «¥3.500» y cobrar otra cosa.
+ */
+function original(v: unknown, base: Currency, amount: number): Original {
+  if (!isObj(v)) return fail('otra moneda');
+  const currency = oneOf<Currency>(v.currency, CURRENCIES, 'otra moneda');
+  if (currency === base) fail('otra moneda');
+  if (v.inverse !== undefined && v.inverse !== true) fail('cambio');
+  const o: Original = {
+    currency,
+    amount: int(v.amount, 1, LIMITS.amount, 'importe'),
+    rate: int(v.rate, RATE_MIN, RATE_MAX, 'cambio'),
+    ...(v.inverse === true && { inverse: true as const }),
+  };
+  return baseAmount(o, base) === amount ? o : fail('cambio');
+}
+
+/**
+ * Las lápidas no conservan `original`: no cuenta para nada y así un gasto borrado nunca impide cambiar la moneda del
+ * grupo (ni deja el grupo inválido al cambiarla). Lo demás de una lápida se valida igual que siempre.
+ */
+const withOriginal = (v: Record<string, unknown>, base: Currency, amount: number): { original?: Original } =>
+  v.original === undefined || v.deleted === true ? {} : { original: original(v.original, base, amount) };
+
 function member(v: unknown): Member {
   if (!isObj(v)) return fail('persona');
   const name = cleanText(v.name, LIMITS.name);
@@ -100,7 +127,7 @@ function expenseId(v: unknown, recurring: ReadonlySet<Id>, lastMonth: string): I
   return v as Id;
 }
 
-function expense(v: unknown, members: ReadonlySet<Id>, recurring: ReadonlySet<Id>, lastMonth: string): Expense {
+function expense(v: unknown, members: ReadonlySet<Id>, recurring: ReadonlySet<Id>, lastMonth: string, base: Currency): Expense {
   if (!isObj(v)) return fail('gasto');
   const date = typeof v.date === 'string' && DATE.test(v.date) ? v.date : fail('fecha');
   const amount = int(v.amount, 1, LIMITS.amount, 'importe');
@@ -109,6 +136,7 @@ function expense(v: unknown, members: ReadonlySet<Id>, recurring: ReadonlySet<Id
     kind: oneOf(v.kind, ['expense', 'transfer'] as const, 'tipo'),
     title: cleanText(v.title) || 'Sin título',
     amount,
+    ...withOriginal(v, base, amount),
     paidBy: members.has(id(v.paidBy)) ? (v.paidBy as Id) : fail('quién pagó'),
     split: checkedSplit(v.split, amount, members),
     category: oneOf<Category>(v.category, CATEGORIES, 'categoría'),
@@ -121,7 +149,7 @@ function expense(v: unknown, members: ReadonlySet<Id>, recurring: ReadonlySet<Id
   return e;
 }
 
-function recurringItem(v: unknown, members: ReadonlySet<Id>): Recurring {
+function recurringItem(v: unknown, members: ReadonlySet<Id>, base: Currency): Recurring {
   if (!isObj(v)) return fail('gasto fijo');
   const month = (x: unknown) => (typeof x === 'string' && MONTH.test(x) ? x : fail('mes'));
   const amount = int(v.amount, 1, LIMITS.amount, 'importe');
@@ -129,6 +157,7 @@ function recurringItem(v: unknown, members: ReadonlySet<Id>): Recurring {
     id: id(v.id),
     title: cleanText(v.title) || 'Gasto fijo',
     amount,
+    ...withOriginal(v, base, amount),
     paidBy: members.has(id(v.paidBy)) ? (v.paidBy as Id) : fail('quién paga'),
     split: checkedSplit(v.split, amount, members),
     category: oneOf<Category>(v.category, CATEGORIES, 'categoría'),
@@ -175,14 +204,15 @@ export function parseGroup(v: unknown): Group {
   // Los grupos de antes de la v0.3.0 no traen plantillas: es lo mismo que una lista vacía.
   const rawTemplates = v.templates === undefined ? [] : v.templates;
   if (!Array.isArray(rawTemplates) || rawTemplates.length > LIMITS.templates) fail('plantillas');
+  const currency = oneOf<Currency>(v.currency, CURRENCIES, 'moneda');
   const members = (v.members as unknown[]).map(member);
   const ids = new Set(members.map((m) => m.id));
   if (ids.size !== members.length) fail('personas repetidas');
-  const recurring = (v.recurring as unknown[]).map((r) => recurringItem(r, ids));
+  const recurring = (v.recurring as unknown[]).map((r) => recurringItem(r, ids, currency));
   if (new Set(recurring.map((r) => r.id)).size !== recurring.length) fail('gastos fijos repetidos');
   const lastMonth = maxRecurringMonth();
   const recIds = new Set(recurring.map((r) => r.id));
-  const expenses = (v.expenses as unknown[]).map((e) => expense(e, ids, recIds, lastMonth));
+  const expenses = (v.expenses as unknown[]).map((e) => expense(e, ids, recIds, lastMonth, currency));
   if (new Set(expenses.map((e) => e.id)).size !== expenses.length) fail('gastos repetidos');
   const templates = (rawTemplates as unknown[]).map((t) => templateItem(t, ids));
   if (new Set(templates.map((t) => t.id)).size !== templates.length) fail('plantillas repetidas');
@@ -197,7 +227,7 @@ export function parseGroup(v: unknown): Group {
     emoji: typeof v.emoji === 'string' && /^[\p{Extended_Pictographic}\p{Regional_Indicator}][\p{Extended_Pictographic}\p{Emoji_Component}\u200d\ufe0f]{0,15}$/u.test(v.emoji)
       ? v.emoji
       : '💸',
-    currency: oneOf<Currency>(v.currency, CURRENCIES, 'moneda'),
+    currency,
     members,
     expenses,
     recurring,

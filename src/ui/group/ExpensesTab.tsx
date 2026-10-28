@@ -46,6 +46,12 @@ function ExpenseRow({ group, e, me, photo }: { group: Group; e: Expense; me?: st
                 <span className="sr-only">{t('expense.withPhoto')}</span>
               </span>
             )}
+            {e.original && (
+              <span className="tag tag--fx">
+                <span className="sr-only">{t('fx.paidIn')} </span>
+                {money(e.original.amount, e.original.currency)}
+              </span>
+            )}
             {e.recurringId && (
               <span className="tag">
                 <Icon name="repeat" size={12} />
@@ -80,7 +86,7 @@ export function ExpensesTab({ group }: { group: Group }) {
   const all = liveExpenses(group).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
   const needle = fold(q.trim());
   const list = needle
-    ? all.filter((e) => fold(`${e.title} ${cat(e.category)} ${memberName(group, e.paidBy)} ${money(e.amount, group.currency)}`).includes(needle))
+    ? all.filter((e) => fold(`${e.title} ${cat(e.category)} ${memberName(group, e.paidBy)} ${money(e.amount, group.currency)} ${e.original ? `${e.original.currency} ${money(e.original.amount, e.original.currency)}` : ''}`).includes(needle))
     : all;
 
   const months: { ym: string; items: Expense[]; total: number }[] = [];

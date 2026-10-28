@@ -39,7 +39,8 @@ export interface AppApi {
   settings: Settings;
   online: boolean;
   /** Aplica un cambio a un grupo y lo guarda. */
-  commit: (groupId: string, fn: (g: Group) => Group) => void;
+  /** Devuelve si se guardó (un cambio que ya no se puede aplicar o no pasaría la validación se avisa y no se guarda). */
+  commit: (groupId: string, fn: (g: Group) => Group) => boolean;
   /** Añade grupos nuevos o fusiona con los que ya existen (mismo id). */
   addOrMerge: (list: Group[]) => { added: number; merged: number; rejected: number };
   removeGroup: (id: string) => void;

@@ -18,10 +18,12 @@ interface Props {
   members: Member[];
   currency: Currency;
   me?: string;
+  /** Aviso bajo los importes exactos (p. ej. que van en la moneda del grupo aunque el gasto sea en otra). */
+  exactHint?: string;
 }
 
 /** «Para»: a partes iguales (chips) o por importes, partes o porcentajes, con lo que falta en vivo. */
-export function SplitEditor({ draft, onChange, amount, members, currency, me }: Props) {
+export function SplitEditor({ draft, onChange, amount, members, currency, me, exactHint }: Props) {
   const { t, money, locale } = useI18n();
   const { split, inputError } = draftToSplit(draft, members, currency);
   const problem = amount ? splitProblem(amount, split, new Set(members.map((m) => m.id))) : null;
@@ -140,6 +142,8 @@ export function SplitEditor({ draft, onChange, amount, members, currency, me }: 
           ))}
         </ul>
       )}
+
+      {draft.mode === 'exact' && exactHint && <FieldNote tone="muted">{exactHint}</FieldNote>}
 
       {status && (
         <FieldNote tone={status.tone}>

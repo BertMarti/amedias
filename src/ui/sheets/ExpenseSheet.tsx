@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import {
   addExpense,
-  amountToInput,
   deleteExpense,
   liveTemplates,
-  parseAmount,
   repeatInput,
   saveTemplate,
   splitProblem,
@@ -13,6 +11,7 @@ import {
   type Category,
   type Expense,
   type Group,
+  type Original,
   type Template,
   type TemplateInput,
 } from '../../core';
@@ -24,14 +23,15 @@ import type { SheetProps } from '../Layers';
 import { photos } from '../photos';
 import { Sheet } from '../Sheet';
 import { eligibleMembers, vibrate } from '../util';
-import { AmountField, CategoryPicker, MemberPicker, TextField } from './fields';
+import { CategoryPicker, MemberPicker, TextField } from './fields';
+import { MoneyField, moneyDraftFrom, moneyProblemKey, readMoney } from './MoneyField';
 import { PhotoField, usePhotoDraft } from './PhotoField';
 import { SplitEditor } from './SplitEditor';
 import { draftFrom, draftToSplit, problemKey } from './splitDraft';
 import { TransferForm } from './TransferForm';
 
-/** Lo que trae un gasto nuevo copiado de otro («Repetir») o de una plantilla. */
-type Prefill = TemplateInput;
+/** Lo que trae un gasto nuevo copiado de otro («Repetir», quizá en otra moneda) o de una plantilla. */
+type Prefill = TemplateInput & { original?: Original };
 
 /** Fila de plantillas al apuntar un gasto: un toque y el formulario queda relleno. */
 function TemplatePicker({ group, onPick }: { group: Group; onPick: (t: Template) => void }) {
@@ -64,7 +64,7 @@ function ExpenseForm({ group, expense, prefill, formId, onDone }: { group: Group
   const src = expense ?? prefill;
   const defaultPayer = members.some((m) => m.id === me) ? me! : (members[0]?.id ?? '');
   const payerOf = (id: string | undefined) => (id && members.some((m) => m.id === id) ? id : defaultPayer);
-  const [amount, setAmount] = useState(src?.amount !== undefined ? amountToInput(src.amount, group.currency, locale) : '');
+  const [money, setMoney] = useState(() => moneyDraftFrom(group, src, locale));
   const [title, setTitle] = useState(src?.title ?? '');
   const [category, setCategory] = useState<Category>(src?.category ?? 'compra');
   const [paidBy, setPaidBy] = useState(payerOf(src?.paidBy));
@@ -73,13 +73,14 @@ function ExpenseForm({ group, expense, prefill, formId, onDone }: { group: Group
   const [touched, setTouched] = useState(false);
   const [tplError, setTplError] = useState<Key | null>(null);
   const photo = usePhotoDraft(expense?.id);
-  const cents = parseAmount(amount, group.currency);
+  const mv = readMoney(money, group.currency);
+  const cents = mv.cents;
   const dateOk = /^\d{4}-\d{2}-\d{2}$/.test(date);
   const memberIds = new Set(members.map((m) => m.id));
 
   const pickTemplate = (x: Template) => {
     setTitle(x.title);
-    setAmount(x.amount !== undefined ? amountToInput(x.amount, group.currency, locale) : '');
+    setMoney(moneyDraftFrom(group, { ...(x.amount !== undefined && { amount: x.amount }) }, locale));
     setCategory(x.category);
     setPaidBy(payerOf(x.paidBy));
     setDraft(draftFrom(x.split, members, group.currency, locale));
@@ -90,8 +91,9 @@ function ExpenseForm({ group, expense, prefill, formId, onDone }: { group: Group
   const asTemplate = () => {
     const name = title.trim();
     if (!name) return setTplError('template.needTitle');
-    const typed = amount.trim() !== '';
-    if (typed && cents === null) return setTplError('expense.amountBad');
+    // Las plantillas guardan el importe en la moneda del grupo (el equivalente, si se escribió en otra).
+    const typed = money.amount.trim() !== '';
+    if (typed && mv.problem) return setTplError(moneyProblemKey(mv.problem));
     const { split, inputError } = draftToSplit(draft, members, group.currency);
     if (inputError) return setTplError('split.err.input');
     if (!typed && split.mode === 'exact') return setTplError('template.needAmount');
@@ -105,9 +107,9 @@ function ExpenseForm({ group, expense, prefill, formId, onDone }: { group: Group
   const save = () => {
     setTouched(true);
     const { split, inputError } = draftToSplit(draft, members, group.currency);
-    if (cents === null || !dateOk || inputError || !paidBy) return;
+    if (cents === null || mv.problem || !dateOk || inputError || !paidBy) return;
     if (splitProblem(cents, split, memberIds)) return;
-    const input = { kind: 'expense' as const, title, amount: cents, paidBy, split, category, date };
+    const input = { kind: 'expense' as const, title, amount: cents, ...(mv.original && { original: mv.original }), paidBy, split, category, date };
     if (expense) {
       commit(group.id, (g) => updateExpense(g, expense.id, input));
       photo.persist(expense.id, group.id, () => toast(t('photo.saveError'), 'error'));
@@ -144,11 +146,11 @@ function ExpenseForm({ group, expense, prefill, formId, onDone }: { group: Group
         </FieldNote>
       )}
       {!expense && <TemplatePicker group={group} onPick={pickTemplate} />}
-      <AmountField value={amount} onChange={setAmount} currency={group.currency} touched={touched} autoFocus={!expense} />
+      <MoneyField group={group} value={money} onChange={setMoney} touched={touched} autoFocus={!expense} />
       <TextField label={t('expense.title')} value={title} onChange={setTitle} placeholder={t('expense.titlePh')} />
       <CategoryPicker value={category} onChange={setCategory} />
       <MemberPicker legend={t('expense.paidByLabel')} name="paid-by" members={members} value={paidBy} onChange={setPaidBy} me={me} />
-      <SplitEditor draft={draft} onChange={setDraft} amount={cents} members={members} currency={group.currency} me={me} />
+      <SplitEditor draft={draft} onChange={setDraft} amount={cents} members={members} currency={group.currency} me={me} exactHint={mv.foreign ? t('fx.exactNote', { currency: group.currency }) : undefined} />
       <TextField label={t('expense.date')} type="date" value={date} onChange={setDate} />
       {touched && !dateOk && <FieldNote>{t('expense.dateBad')}</FieldNote>}
       {photos() && <PhotoField draft={photo} title={title || t('expense.new')} />}

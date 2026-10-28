@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { addPayment, amountToInput, parseAmount, today, updateExpense, type Expense, type Group } from '../../core';
+import { addPayment, today, updateExpense, type Expense, type Group } from '../../core';
 import { eligibleMembers, isSettled } from '../util';
 import { useI18n } from '../../i18n';
 import { FieldNote } from '../bits';
 import { useApp } from '../context';
-import { AmountField, MemberPicker, TextField } from './fields';
+import { MemberPicker, TextField } from './fields';
+import { MoneyField, moneyDraftFrom, readMoney } from './MoneyField';
 
 /** «Registrar un pago»: alguien le devuelve dinero a otra persona (Bizum, transferencia, efectivo). */
 export function TransferForm({ group, expense, formId, onDone }: { group: Group; expense?: Expense; formId: string; onDone: () => void }) {
@@ -13,13 +14,14 @@ export function TransferForm({ group, expense, formId, onDone }: { group: Group;
   const me = settings.me[group.id];
   const members = eligibleMembers(group, expense);
   const firstTo = expense && expense.split.mode === 'exact' ? Object.keys(expense.split.amounts)[0] : undefined;
-  const [amount, setAmount] = useState(expense ? amountToInput(expense.amount, group.currency, locale) : '');
+  const [money, setMoney] = useState(() => moneyDraftFrom(group, expense, locale));
   const [from, setFrom] = useState(expense?.paidBy ?? (members.some((m) => m.id === me) ? me! : (members[0]?.id ?? '')));
   const [to, setTo] = useState(firstTo ?? members.find((m) => m.id !== (expense?.paidBy ?? me ?? members[0]?.id))?.id ?? '');
   const [date, setDate] = useState(expense?.date ?? today());
   const [touched, setTouched] = useState(false);
-  const cents = parseAmount(amount, group.currency);
-  const valid = cents !== null && from && to && from !== to && /^\d{4}-\d{2}-\d{2}$/.test(date);
+  const mv = readMoney(money, group.currency);
+  const cents = mv.cents;
+  const valid = cents !== null && !mv.problem && from && to && from !== to && /^\d{4}-\d{2}-\d{2}$/.test(date);
 
   const save = () => {
     setTouched(true);
@@ -27,8 +29,8 @@ export function TransferForm({ group, expense, formId, onDone }: { group: Group;
     let settled = false;
     commit(group.id, (g) => {
       const next = expense
-        ? updateExpense(g, expense.id, { kind: 'transfer', title: expense.title, amount: cents, paidBy: from, split: { mode: 'exact', amounts: { [to]: cents } }, category: 'otros', date })
-        : addPayment(g, from, to, cents, date);
+        ? updateExpense(g, expense.id, { kind: 'transfer', title: expense.title, amount: cents, ...(mv.original && { original: mv.original }), paidBy: from, split: { mode: 'exact', amounts: { [to]: cents } }, category: 'otros', date })
+        : addPayment(g, from, to, cents, date, Date.now(), mv.original);
       settled = isSettled(next);
       return next;
     });
@@ -48,7 +50,7 @@ export function TransferForm({ group, expense, formId, onDone }: { group: Group;
       }}
     >
       <p className="muted small">{t('payment.explain')}</p>
-      <AmountField value={amount} onChange={setAmount} currency={group.currency} touched={touched} autoFocus={!expense} />
+      <MoneyField group={group} value={money} onChange={setMoney} touched={touched} autoFocus={!expense} />
       <MemberPicker
         legend={t('payment.from')}
         name="pay-from"

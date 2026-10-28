@@ -1,12 +1,13 @@
 import { useId, useState } from 'react';
-import { addRecurring, amountToInput, materializeRecurring, parseAmount, splitProblem, today, updateRecurring, type Category, type Group } from '../../core';
+import { addRecurring, materializeRecurring, splitProblem, today, updateRecurring, type Category, type Group } from '../../core';
 import { useI18n } from '../../i18n';
 import { useApp } from '../context';
 import { Icon } from '../icons';
 import type { SheetProps } from '../Layers';
 import { Sheet } from '../Sheet';
 import { addMonths, currentMonth, eligibleMembers } from '../util';
-import { AmountField, CategoryPicker, MemberPicker, TextField } from './fields';
+import { CategoryPicker, MemberPicker, TextField } from './fields';
+import { MoneyField, moneyDraftFrom, readMoney } from './MoneyField';
 import { SplitEditor } from './SplitEditor';
 import { draftFrom, draftToSplit } from './splitDraft';
 
@@ -36,7 +37,7 @@ export function RecurringSheet({ active, onClose, group, recurringId }: SheetPro
   const members = eligibleMembers(group, r);
   const ym = currentMonth();
   const [title, setTitle] = useState(r?.title ?? '');
-  const [amount, setAmount] = useState(r ? amountToInput(r.amount, group.currency, locale) : '');
+  const [money, setMoney] = useState(() => moneyDraftFrom(group, r, locale));
   const [category, setCategory] = useState<Category>(r?.category ?? 'casa');
   const [paidBy, setPaidBy] = useState(r?.paidBy ?? (members.some((m) => m.id === me) ? me! : (members[0]?.id ?? '')));
   const [day, setDay] = useState(String(r?.day ?? Math.min(28, Number(today().slice(8, 10)))));
@@ -44,7 +45,8 @@ export function RecurringSheet({ active, onClose, group, recurringId }: SheetPro
   const [end, setEnd] = useState(r?.endMonth ?? '');
   const [draft, setDraft] = useState(() => draftFrom(r?.split, members, group.currency, locale));
   const [touched, setTouched] = useState(false);
-  const cents = parseAmount(amount, group.currency);
+  const mv = readMoney(money, group.currency);
+  const cents = mv.cents;
   if (recurringId && !r) return null;
 
   const startOptions = Array.from({ length: 25 }, (_, i) => addMonths(ym, i - 12));
@@ -65,8 +67,9 @@ export function RecurringSheet({ active, onClose, group, recurringId }: SheetPro
   const save = () => {
     setTouched(true);
     const { split, inputError } = draftToSplit(draft, members, group.currency);
-    if (cents === null || inputError || !paidBy || splitProblem(cents, split, new Set(members.map((m) => m.id)))) return;
-    const input = { title, amount: cents, paidBy, split, category, day: Number(day), startMonth: start, ...(end ? { endMonth: end } : {}) };
+    if (cents === null || mv.problem || inputError || !paidBy || splitProblem(cents, split, new Set(members.map((m) => m.id)))) return;
+    // `original: undefined` al editar quita la otra moneda si se volvió a la del grupo.
+    const input = { title, amount: cents, original: mv.original, paidBy, split, category, day: Number(day), startMonth: start, ...(end ? { endMonth: end } : {}) };
     const added = apply((g) => (r ? updateRecurring(g, r.id, { ...input, endMonth: end || undefined }) : addRecurring(g, input)));
     toast(added > 0 ? tp('toast.recurring', added) : t('toast.fixedSaved'));
     onClose();
@@ -114,11 +117,11 @@ export function RecurringSheet({ active, onClose, group, recurringId }: SheetPro
           save();
         }}
       >
-        <AmountField value={amount} onChange={setAmount} currency={group.currency} touched={touched} autoFocus={!r} />
+        <MoneyField group={group} value={money} onChange={setMoney} touched={touched} autoFocus={!r} />
         <TextField label={t('expense.title')} value={title} onChange={setTitle} placeholder={t('fixed.titlePh')} />
         <CategoryPicker value={category} onChange={setCategory} />
         <MemberPicker legend={t('fixed.paidBy')} name="fixed-paid-by" members={members} value={paidBy} onChange={setPaidBy} me={me} />
-        <SplitEditor draft={draft} onChange={setDraft} amount={cents} members={members} currency={group.currency} me={me} />
+        <SplitEditor draft={draft} onChange={setDraft} amount={cents} members={members} currency={group.currency} me={me} exactHint={mv.foreign ? t('fx.exactNote', { currency: group.currency }) : undefined} />
         <div className="field-row">
           <Select
             label={t('fixed.day')}

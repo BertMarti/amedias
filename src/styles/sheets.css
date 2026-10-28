@@ -267,3 +267,103 @@
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
+
+/* ---------- Otra moneda (v0.4.0) ---------- */
+
+.amount-currency {
+  flex: none;
+  align-self: center;
+  min-height: 44px;
+  padding: 0 26px 0 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line-strong);
+  background-color: var(--card-2);
+  color: var(--ink);
+  font-weight: 750;
+  font-size: 0.95rem;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink-2) 50%), linear-gradient(135deg, var(--ink-2) 50%, transparent 50%);
+  background-position: calc(100% - 15px) 50%, calc(100% - 10px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.amount-currency:focus-visible {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 35%, transparent);
+}
+
+.amount-input {
+  /* El selector de moneda es más bajo que la cifra: centrado en la fila. */
+  align-items: center;
+}
+
+.amount-symbol {
+  max-width: 3.2em;
+  overflow: hidden;
+}
+
+.fx {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 12px;
+  border-radius: var(--r-md);
+  background: var(--saffron-soft);
+  min-width: 0;
+}
+
+.fx-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.fx-flip {
+  padding: 0 10px;
+  gap: 6px;
+}
+
+.fx-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid var(--line-strong);
+  background: var(--card);
+  min-width: 0;
+}
+
+.fx-input:focus-within {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 35%, transparent);
+}
+
+.fx-input--bad {
+  border-color: var(--tomato);
+}
+
+.fx-affix {
+  flex: none;
+  font-weight: 700;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.fx-input input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  outline: none;
+  font-weight: 750;
+  font-size: 1.1rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

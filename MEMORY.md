@@ -1,5 +1,5 @@
 # MEMORY.md · Repartito
-Última actualización: 2026-10-27 por builder (v0.3.0, rama `feat/v0.3`)
+Última actualización: 2026-10-28 por builder (v0.4.0, rama `feat/monedas`)
 
 Memoria compartida entre agentes: estado, decisiones y trampas. Lo estable está en [AGENTS.md](AGENTS.md);
 la hoja de ruta, en [PLAN.md](PLAN.md).
@@ -38,6 +38,18 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
   tocar el modelo (ni `hasPhoto`). Se guardan como `data:image/jpeg` (+33 % por el base64, a cambio de no tocar la
   CSP ni convertir al pintar). Sin dependencias nuevas: el envoltorio de IndexedDB está detrás de la interfaz
   `PhotoStore` y los tests usan `memoryPhotoStore` (por eso no hace falta `fake-indexeddb`).
+- **Varias monedas** (v0.4.0): `original?: { currency, amount, rate, inverse? }` en gastos y gastos fijos (no en
+  plantillas). `rate` = lo que se escribió en millonésimas y en su dirección (sin `inverse`: 1 [grupo] = x [otra],
+  como cotizan los bancos; con `inverse`: 1 [otra] = x [grupo]). Se descartó «unidades mínimas del grupo por 10⁶ de la
+  otra» porque pierde cifras con monedas débiles (COP, ARS) y no devuelve exacto lo escrito al invertirlo. `amount` se
+  calcula una vez con BigInt (mitades hacia arriba) y `parseGroup` lo recalcula y exige igualdad exacta.
+- **Importes exactos en la moneda del grupo** aunque el gasto sea en otra: es lo que suma `amount`; lo contrario
+  obligaría a repartir céntimos de redondeo al convertir cada parte.
+- **Desempate de la fusión**: misma `updatedAt` → gana la versión con `original`, luego JSON. Motivo: la v0.3 descarta
+  `original` al leer, y en orden JSON la copia recortada podía ganar (`}` > `,`).
+- **Lápidas sin `original`** (se quita al borrar y al validar): un gasto borrado no bloquea cambiar la moneda del grupo
+  ni deja el grupo inválido tras cambiarla.
+- **Moneda del grupo bloqueada** con gastos o fijos vivos en otras monedas (`hasForeign`), al editar y al fusionar.
 - **Recordatorio**: «Recordar»/«Avisar» sustituye a «Copiar» en las transferencias en las que estás tú (con copia
   como alternativa); las demás siguen con «Copiar». `shareLink` acepta ya `url` opcional.
 
@@ -59,6 +71,12 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 - El panel de navegador integrado de Claude no registra el service worker («An unknown error occurred when
   fetching the script», una vez por carga): es del entorno, no de la app.
 - `git checkout <archivo>` para deshacer una prueba de mutación devuelve el archivo a HEAD: copia antes o usa `git stash`.
+- `Intl` en `es-ES` formatea el yen como «3500 JPY» (no «3500 ¥»): los tests de interfaz buscan el código.
+- `parseRate` no es `parseAmount`: un separador que aparece una sola vez es **siempre decimal** («1.234» = 1,234),
+  porque los cambios llevan a menudo tres decimales. El equivalente en vivo («≈ 21,67 €») delata un cambio mal escrito.
+- En el navegador integrado, `form_input` cambia el valor del DOM pero React no se entera: para probar formularios,
+  teclear de verdad (`computer type`) o usar el `setter` nativo + evento `input`/`change`. Las capturas van un fotograma
+  por detrás durante las animaciones de las hojas.
 - `sw.js` en `public/` lleva `VERSION = 'dev'` e `INTEGRITY = {}`: sin build no cachea nada. El CI comprueba que el build los reescribe.
 
 ## Tras publicar (2026-10-25)
@@ -91,3 +109,16 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
   Sin errores de CSP ni de Trusted Types.
 - Pendiente de comprobar en un móvil real: el menú de compartir de Android con el recordatorio y el selector de
   fotos dentro de la app (el emulador del CI no lo cubre).
+
+## v0.4.0 en rama (2026-10-28)
+
+- Rama `feat/monedas` subida, **sin PR**: la revisa el lead. Varias monedas por grupo con cambio manual (`src/core/fx.ts`,
+  `src/ui/sheets/MoneyField.tsx`). 210 tests en verde (lint, tipos, build web y `build:android`).
+- Probado en el navegador integrado a 375 y 320 px, claro y oscuro: gasto en JPY (≈ 21,67 €), en USD con el cambio al
+  revés y reparto por importes, cambio propuesto en un pago, edición, «Grupo y personas» con la moneda bloqueada, saldos
+  y resumen. Sin desbordes (ancho de página = ancho de pantalla) ni errores de CSP o Trusted Types.
+- Auditoría (subagente security-auditor): nada bloqueante. Corregidos: `commit` ya no deja escapar un error de `fn`
+  (avisa con `toast.notApplied` y devuelve `false`), `updateRecurring` con `amount` sin `original` quita la otra
+  moneda, y el aviso de `currency` al fusionar explica cómo salir (misma moneda en los dos móviles). Aceptado: la
+  bifurcación de moneda entre dos móviles sin conexión (T13).
+- Pendiente: probarlo en un móvil real y decidir con el lead si las plantillas deberían guardar también otra moneda.

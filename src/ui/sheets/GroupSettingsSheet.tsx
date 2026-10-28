@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { addMember, balances, decimals, deleteTemplate, liveExpenses, liveTemplates, LIMITS, renameGroup, updateMember, type Currency, type Group, type Member } from '../../core';
+import { addMember, balances, decimals, deleteTemplate, hasForeign, liveExpenses, liveTemplates, LIMITS, renameGroup, updateMember, type Currency, type Group, type Member } from '../../core';
 import { useI18n } from '../../i18n';
 import { Avatar, CategoryTile, FieldNote } from '../bits';
 import { useApp } from '../context';
@@ -111,6 +111,8 @@ export function GroupSettingsSheet({ active, onClose, group }: SheetProps & { gr
   const [currency, setCurrency] = useState<Currency>(group.currency);
   const [newPerson, setNewPerson] = useState('');
   const hasExpenses = liveExpenses(group).length > 0 || group.recurring.some((r) => !r.deleted);
+  // Con gastos en otras monedas, su cambio es respecto a la moneda del grupo: no se puede cambiar.
+  const foreign = hasForeign(group);
   const members = activeMembers(group);
   const dirty = name !== group.name || emoji !== group.emoji || currency !== group.currency;
 
@@ -150,15 +152,22 @@ export function GroupSettingsSheet({ active, onClose, group }: SheetProps & { gr
         <TextField label={t('newGroup.name')} value={name} onChange={setName} maxLength={LIMITS.name} />
         <EmojiPicker value={emoji} onChange={setEmoji} />
         {/* Cambiar entre monedas con distinto número de decimales cambiaría los importes guardados. */}
-        <CurrencySelect value={currency} onChange={setCurrency} disabled={(c) => hasExpenses && decimals(c) !== decimals(group.currency)} />
-        {hasExpenses && <FieldNote tone="muted">{t('groupSettings.currencyNote')}</FieldNote>}
+        <CurrencySelect
+          value={currency}
+          onChange={setCurrency}
+          disabled={(c) => (foreign && c !== group.currency) || (hasExpenses && decimals(c) !== decimals(group.currency))}
+        />
+        {foreign ? (
+          <FieldNote tone="muted">{t('groupSettings.currencyForeign', { currency: group.currency })}</FieldNote>
+        ) : (
+          hasExpenses && <FieldNote tone="muted">{t('groupSettings.currencyNote')}</FieldNote>
+        )}
         <button
           type="button"
           className="btn btn--primary"
           disabled={!dirty}
           onClick={() => {
-            commit(group.id, (g) => renameGroup(g, { name, emoji, currency }));
-            toast(t('toast.saved'));
+            if (commit(group.id, (g) => renameGroup(g, { name, emoji, currency }))) toast(t('toast.saved'));
           }}
         >
           <Icon name="check" />

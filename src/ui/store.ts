@@ -204,21 +204,29 @@ export class AppStore {
 
   commit = (groupId: string, fn: (g: Group) => Group) => {
     const g = this.state.groups.find((x) => x.id === groupId);
-    if (!g) return;
-    const next = fn(g);
-    if (next === g) return;
+    if (!g) return false;
+    let next: Group;
+    try {
+      next = fn(g);
+    } catch {
+      // P. ej. cambiar la moneda del grupo cuando, mientras tanto, ha llegado un gasto en otra moneda.
+      this.toast(this.tr().t('toast.notApplied'), 'error');
+      return false;
+    }
+    if (next === g) return false;
     // Nunca se guarda algo que al reabrir no pasaría la validación (p. ej. por encima de los límites).
     try {
       revalidate(next);
     } catch {
       this.toast(this.tr().t('toast.tooBig'), 'error');
-      return;
+      return false;
     }
     this.persist(this.state.groups.map((x) => (x.id === groupId ? next : x)));
     // Un gasto borrado se lleva su foto (que solo vive en este dispositivo).
     const before = new Map(g.expenses.map((e) => [e.id, e]));
     const gone = next.expenses.filter((e) => e.deleted && before.get(e.id)?.deleted !== true).map((e) => e.id);
     void deletePhotos(gone).catch(() => undefined);
+    return true;
   };
 
   /** Añade o fusiona grupos de fuera. Los que darían problemas (ver `incomingProblem`) no se tocan. */

@@ -38,6 +38,12 @@ export function RecurringTab({ group }: { group: Group }) {
                           : r.startMonth > ym
                             ? ` ${t('fixed.from', { month: month(r.startMonth) })}`
                             : ''}
+                      {r.original && (
+                        <span className="tag tag--fx">
+                          <span className="sr-only">{t('fx.paidIn')} </span>
+                          {money(r.original.amount, r.original.currency)}
+                        </span>
+                      )}
                     </span>
                   </span>
                   <span className="amount">{money(r.amount, group.currency)}</span>
