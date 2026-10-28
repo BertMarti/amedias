@@ -1,5 +1,6 @@
 export * from './types';
 export * from './money';
+export * from './fx';
 export * from './split';
 export * from './merge';
 export * from './recurring';

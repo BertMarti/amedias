@@ -39,6 +39,7 @@ export function materializeRecurring(group: Group, today: IsoDate, now = Date.no
         kind: 'expense',
         title: r.title,
         amount: r.amount,
+        ...(r.original && { original: r.original }),
         paidBy: r.paidBy,
         split: r.split,
         category: r.category,

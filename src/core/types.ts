@@ -37,6 +37,23 @@ export type Split =
   /** Por porcentajes en puntos básicos (10 000 = 100 %); deben sumar 10 000. */
   | { mode: 'percent'; basisPoints: Record<Id, number> };
 
+/**
+ * Importe pagado en otra moneda (v0.4.0), p. ej. una cena en yenes en un viaje en euros. El `amount` del gasto es su
+ * equivalente en la moneda del grupo, calculado una vez y guardado (ver fx.ts); saldos y repartos solo usan `amount`.
+ */
+export interface Original {
+  /** Distinta de la moneda del grupo. */
+  currency: Currency;
+  /** En la unidad mínima de `currency` (yenes; céntimos de dólar). */
+  amount: Cents;
+  /**
+   * Tipo de cambio en millonésimas, tal como se escribió: 1 [moneda del grupo] = rate / 1e6 [`currency`]
+   * (o, con `inverse`, 1 [`currency`] = rate / 1e6 [moneda del grupo]).
+   */
+  rate: number;
+  inverse?: true;
+}
+
 export interface Member {
   id: Id;
   name: string;
@@ -54,6 +71,8 @@ export interface Expense {
   split: Split;
   category: Category;
   date: IsoDate;
+  /** Si se pagó en otra moneda: el importe y el cambio que se escribieron (`amount` es su equivalente). */
+  original?: Original;
   /** Si lo generó un gasto fijo: su id. */
   recurringId?: Id;
   createdAt: number;
@@ -75,6 +94,8 @@ export interface Recurring {
   startMonth: string;
   /** Último mes en que se aplica, si termina (`AAAA-MM`). */
   endMonth?: string;
+  /** Si se paga en otra moneda, con un cambio fijo (v0.4.0). */
+  original?: Original;
   updatedAt: number;
   deleted?: boolean;
 }

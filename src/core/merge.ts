@@ -1,15 +1,25 @@
+import { hasForeign } from './fx';
 import { decimals } from './money';
 import type { Expense, Group, Member, Recurring, Template } from './types';
 import { FUTURE_SLACK_MS, latestEdit, revalidate } from './validate';
 
 type Entity = Member | Expense | Recurring | Template;
 
+const hasOriginal = (x: Entity): boolean => 'original' in x && x.original !== undefined;
+
 /**
- * Gana la versión editada más tarde; si empatan, la mayor en orden de texto JSON (determinista: da
- * igual el orden en que se fusionen las copias, todas acaban iguales).
+ * Gana la versión editada más tarde; si empatan, la que conserva el importe en otra moneda (`original`) y, si no, la
+ * mayor en orden de texto JSON. Es un orden total (determinista: da igual el orden en que se fusionen las copias, todas
+ * acaban iguales).
+ *
+ * Lo de `original`: la v0.3 descarta los campos que no conoce, así que un gasto en yenes que pasa por un móvil con la
+ * v0.3 vuelve con el mismo `updatedAt` y el mismo `amount`, pero sin `original`. Sin esta regla, el orden de texto
+ * podría preferir la copia recortada y el dato se perdería también en los móviles al día.
  */
 function newer<T extends Entity>(a: T, b: T): T {
   if (a.updatedAt !== b.updatedAt) return a.updatedAt > b.updatedAt ? a : b;
+  const oa = hasOriginal(a);
+  if (oa !== hasOriginal(b)) return oa ? a : b;
   return JSON.stringify(a) >= JSON.stringify(b) ? a : b;
 }
 
@@ -111,7 +121,8 @@ export type IncomingProblem = 'future' | 'currency' | 'limits';
 /**
  * Motivo para NO aceptar un grupo que llega de fuera, o `null`:
  * - `future`: trae ediciones fechadas en el futuro (ganarían a las tuyas durante meses);
- * - `currency`: cambia a una moneda con otros decimales y ya hay gastos (todo se multiplicaría o dividiría por 100);
+ * - `currency`: cambia a una moneda con otros decimales y ya hay gastos (todo se multiplicaría o dividiría por 100), o
+ *   cambia la moneda del grupo y hay gastos en otras monedas (sus cambios son respecto a la moneda de antes);
  * - `limits`: el resultado superaría los límites y al volver a abrir la app se rechazaría.
  */
 export function incomingProblem(local: Group | undefined, incoming: Group, now = Date.now()): IncomingProblem | null {
@@ -119,6 +130,7 @@ export function incomingProblem(local: Group | undefined, incoming: Group, now =
   if (local && decimals(local.currency) !== decimals(incoming.currency) && [...local.expenses, ...incoming.expenses].some((e) => !e.deleted)) {
     return 'currency';
   }
+  if (local && local.currency !== incoming.currency && (hasForeign(local) || hasForeign(incoming))) return 'currency';
   try {
     revalidate(local ? mergeGroups(local, incoming) : incoming);
   } catch {

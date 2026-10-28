@@ -1,7 +1,8 @@
 /** Crear y editar entidades con ids y marcas de tiempo correctas (lo que necesita la fusión). */
+import { hasForeign } from './fx';
 import { decimals } from './money';
 import { cleanText } from './validate';
-import { LIMITS, type Category, type Cents, type Currency, type Expense, type Group, type Id, type IsoDate, type Member, type Recurring, type Split, type Template } from './types';
+import { LIMITS, type Category, type Cents, type Currency, type Expense, type Group, type Id, type IsoDate, type Member, type Original, type Recurring, type Split, type Template } from './types';
 
 export const uuid = (): Id => crypto.randomUUID();
 
@@ -46,45 +47,69 @@ export interface ExpenseInput {
   split: Split;
   category: Category;
   date: IsoDate;
+  /** Si se pagó en otra moneda (v0.4.0): `amount` tiene que ser su equivalente (ver `foreignAmount`). */
+  original?: Original;
+}
+
+/** Quita `original` de un objeto (también si viene como `undefined`) y lo vuelve a poner solo si hay uno. */
+function setOriginal<T extends { original?: Original }>(x: T, original: Original | undefined): T {
+  const { original: _old, ...rest } = x;
+  return (original ? { ...rest, original } : rest) as T;
 }
 
 export function addExpense(group: Group, input: ExpenseInput, now = Date.now()): Group {
-  const e: Expense = { id: uuid(), kind: input.kind ?? 'expense', ...input, title: cleanText(input.title) || 'Gasto', createdAt: now, updatedAt: now };
+  const e: Expense = setOriginal({ id: uuid(), kind: input.kind ?? 'expense', ...input, title: cleanText(input.title) || 'Gasto', createdAt: now, updatedAt: now }, input.original);
   return { ...group, expenses: [...group.expenses, e] };
 }
 
+/** `input` es el gasto entero: si no trae `original` (se volvió a la moneda del grupo), el gasto deja de tenerlo. */
 export function updateExpense(group: Group, id: Id, input: ExpenseInput, now = Date.now()): Group {
   return {
     ...group,
-    expenses: group.expenses.map((e) => (e.id === id ? { ...e, ...input, title: cleanText(input.title) || e.title, updatedAt: bump(e.updatedAt, now) } : e)),
+    expenses: group.expenses.map((e) => (e.id === id ? setOriginal({ ...e, ...input, title: cleanText(input.title) || e.title, updatedAt: bump(e.updatedAt, now) }, input.original) : e)),
   };
 }
 
-/** Borrar = lápida, para que el borrado también llegue a los demás al fusionar. */
+/** Borrar = lápida, para que el borrado también llegue a los demás al fusionar. La lápida no guarda `original`. */
 export function deleteExpense(group: Group, id: Id, now = Date.now()): Group {
-  return { ...group, expenses: group.expenses.map((e) => (e.id === id ? { ...e, deleted: true, updatedAt: bump(e.updatedAt, now) } : e)) };
+  return { ...group, expenses: group.expenses.map((e) => (e.id === id ? setOriginal({ ...e, deleted: true as const, updatedAt: bump(e.updatedAt, now) }, undefined) : e)) };
 }
 
-/** Registrar que `from` le ha pagado `amount` a `to` (Bizum, transferencia, efectivo). */
-export function addPayment(group: Group, from: Id, to: Id, amount: Cents, date: IsoDate, now = Date.now()): Group {
-  return addExpense(group, { kind: 'transfer', title: 'Pago', amount, paidBy: from, split: { mode: 'exact', amounts: { [to]: amount } }, category: 'otros', date }, now);
+/** Registrar que `from` le ha pagado `amount` a `to` (Bizum, transferencia, efectivo), si acaso en otra moneda. */
+export function addPayment(group: Group, from: Id, to: Id, amount: Cents, date: IsoDate, now = Date.now(), original?: Original): Group {
+  return addExpense(group, { kind: 'transfer', title: 'Pago', amount, paidBy: from, split: { mode: 'exact', amounts: { [to]: amount } }, category: 'otros', date, ...(original && { original }) }, now);
 }
 
 export type RecurringInput = Omit<Recurring, 'id' | 'updatedAt' | 'deleted'>;
 
 export function addRecurring(group: Group, input: RecurringInput, now = Date.now()): Group {
-  const r: Recurring = { ...input, id: uuid(), title: cleanText(input.title) || 'Gasto fijo', day: Math.min(28, Math.max(1, Math.round(input.day))), updatedAt: now };
+  const r: Recurring = setOriginal({ ...input, id: uuid(), title: cleanText(input.title) || 'Gasto fijo', day: Math.min(28, Math.max(1, Math.round(input.day))), updatedAt: now }, input.original);
   return { ...group, recurring: [...group.recurring, r] };
 }
 
+/**
+ * Cambia parte de un gasto fijo. `original: undefined` en `patch` quita el importe en otra moneda; si `patch` no lo
+ * menciona, se queda como estaba. Al borrarlo, la lápida no guarda `original`.
+ */
 export function updateRecurring(group: Group, id: Id, patch: Partial<RecurringInput> & { deleted?: boolean }, now = Date.now()): Group {
-  return { ...group, recurring: group.recurring.map((r) => (r.id === id ? { ...r, ...patch, updatedAt: bump(r.updatedAt, now) } : r)) };
+  return {
+    ...group,
+    recurring: group.recurring.map((r) => {
+      if (r.id !== id) return r;
+      const next = { ...r, ...patch, updatedAt: bump(r.updatedAt, now) } as Recurring;
+      return 'original' in patch || patch.deleted ? setOriginal(next, patch.deleted ? undefined : patch.original) : next;
+    }),
+  };
 }
 
 export function renameGroup(group: Group, patch: Partial<Pick<Group, 'name' | 'emoji' | 'currency'>>, now = Date.now()): Group {
   // Los importes van en la unidad mínima: pasar de EUR (2 decimales) a JPY (0) multiplicaría todo por 100.
   if (patch.currency && decimals(patch.currency) !== decimals(group.currency) && group.expenses.some((e) => !e.deleted)) {
     throw new Error('No se puede cambiar a una moneda con distintos decimales si el grupo ya tiene gastos');
+  }
+  // Los gastos en otras monedas guardan su cambio respecto a la moneda del grupo: con otra, dejarían de cuadrar.
+  if (patch.currency && patch.currency !== group.currency && hasForeign(group)) {
+    throw new Error('No se puede cambiar la moneda del grupo si hay gastos en otras monedas');
   }
   return { ...group, ...patch, name: patch.name !== undefined ? cleanText(patch.name, LIMITS.name) || group.name : group.name, updatedAt: bump(group.updatedAt, now) };
 }
@@ -120,8 +145,18 @@ export function liveTemplates(group: Group, locale = 'es'): Template[] {
 
 /**
  * «Repetir»: lo que se copia de un gasto (o de una plantilla) a uno nuevo. Todo menos la fecha, que es la de hoy,
- * y la identidad: el gasto nuevo tendrá su propio id.
+ * y la identidad: el gasto nuevo tendrá su propio id. Un gasto en otra moneda se repite en esa moneda y con su cambio.
+ * Las plantillas no guardan otra moneda: llevan el importe en la del grupo.
  */
-export function repeatInput(src: TemplateInput, date: IsoDate = today()): Omit<ExpenseInput, 'amount'> & { amount?: Cents } {
-  return { kind: 'expense', title: src.title, ...(src.amount !== undefined && { amount: src.amount }), paidBy: src.paidBy, split: src.split, category: src.category, date };
+export function repeatInput(src: TemplateInput & { original?: Original }, date: IsoDate = today()): Omit<ExpenseInput, 'amount'> & { amount?: Cents } {
+  return {
+    kind: 'expense',
+    title: src.title,
+    ...(src.amount !== undefined && { amount: src.amount }),
+    ...(src.original && { original: src.original }),
+    paidBy: src.paidBy,
+    split: src.split,
+    category: src.category,
+    date,
+  };
 }
