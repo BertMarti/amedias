@@ -49,8 +49,10 @@ ninguna de esas trabas.
   huella del certificado de firma.
 - [ ] **Publicar en Google Play**: el AAB firmado ya se genera en cada versión; falta la **cuenta de desarrollador
   del autor** (alta de pago único y verificación de identidad) y la ficha de la tienda.
-- [ ] **Varias monedas** en un mismo grupo (viajes) con cambio manual: cambia el modelo (moneda por gasto y tipo de
-  cambio fijado al apuntarlo), los saldos y la fusión; necesita su propio diseño y tests de las propiedades.
+- [x] **Varias monedas** en un mismo grupo (viajes) con cambio manual (rama `feat/monedas`): cada gasto, pago o gasto
+  fijo puede llevar su moneda, su importe y el cambio que se escribió; el equivalente en la moneda del grupo se
+  calcula una vez y la validación lo recalcula. Saldos y fusión no cambian (ver
+  [docs/SINCRONIZACION.md](docs/SINCRONIZACION.md#varias-monedas-v040)).
 
 ## «Juntos» — más adelante
 

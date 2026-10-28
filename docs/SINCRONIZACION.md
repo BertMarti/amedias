@@ -68,6 +68,53 @@ quedan dos (ids distintos): se borra una y la lápida viaja.
 conoce); al volver a fusionar con una copia nueva, las plantillas vuelven a aparecer porque la fusión es una unión.
 Un grupo sin `templates` se lee como lista vacía. No hace falta subir la versión del formato (`v: 1`).
 
+### Varias monedas (v0.4.0)
+
+El grupo conserva **su moneda** y todos los saldos se calculan en ella. Un gasto, un pago o un gasto fijo pagado en
+otra moneda lleva un campo opcional:
+
+```json
+"amount": 2167,
+"original": { "currency": "JPY", "amount": 3500, "rate": 161500000 }
+```
+
+- `original.amount` va en la unidad mínima de esa moneda (yenes; céntimos de dólar).
+- `rate` es un **entero**: el número que escribió la persona, en millonésimas, en la dirección en que lo escribió.
+  Sin `inverse`, «1 [moneda del grupo] = rate/10⁶ [original]» (1 EUR = 161,5 JPY, como cotizan los bancos); con
+  `"inverse": true`, «1 [original] = rate/10⁶ [moneda del grupo]» (1 JPY = 0,0062 EUR; 1 USD = 17,2 MXN en un grupo en
+  pesos). Así se guarda exacto lo que se escribió, sin flotantes y sin perder cifras al invertir, tanto para monedas
+  fuertes como débiles. Límites: de 0,000001 a 1 000 000 (`RATE_MIN`, `RATE_MAX`).
+- `amount` es el **equivalente** en la moneda del grupo: se calcula una vez al guardar (`convert` en `fx.ts`, con
+  BigInt y redondeo a la unidad más cercana, las mitades hacia arriba) y se guarda. Saldos, repartos, resumen, CSV
+  y fusión usan `amount` como siempre: nada se reconvierte después.
+- Monedas con distintos decimales (JPY y CLP no tienen): la fórmula tiene en cuenta los decimales de las dos, así que
+  3500 ¥ con 1 JPY = 0,0062 EUR son 2170 céntimos.
+- **Repartos por importes exactos**: siempre en la moneda del grupo y sumando `amount` (la hoja lo avisa y enseña lo
+  que falta en esa moneda). Repartos iguales, por partes o por porcentajes se aplican al equivalente.
+- Al apuntar otro gasto en esa moneda, la app propone el **último cambio usado** en el grupo (`lastRate`: gasto o
+  gasto fijo vivo más reciente en esa moneda), y se puede cambiar.
+- Las **plantillas** guardan el importe en la moneda del grupo (el equivalente).
+
+**Validación.** `parseGroup` exige que `original.currency` sea una moneda de la lista y **distinta** de la del grupo,
+que `original.amount` y `rate` sean enteros dentro de sus límites, que `inverse` sea `true` o no esté y, sobre todo,
+que `amount` sea **exactamente** la conversión de `original`: se recalcula y, si no cuadra, se rechaza el grupo. Un
+enlace manipulado no puede enseñar «3500 ¥» y cobrar otra cosa. Las lápidas no conservan `original` (se descarta al
+validar y al borrar).
+
+**Moneda del grupo.** Con gastos o gastos fijos vivos en otras monedas, la moneda del grupo no se puede cambiar
+(`renameGroup` lo impide y `incomingProblem` devuelve `currency` si un enlace la cambia): sus cambios son respecto a
+ella. Sigue en pie la regla anterior: con gastos, no se cambia a una moneda con otros decimales.
+
+**Fusión.** No cambia: une por id y gana el `updatedAt` mayor. Solo cambia el desempate: con la misma marca, gana la
+versión **con** `original`, y si no, la mayor en orden JSON. Sigue siendo un orden total, así que la fusión sigue
+siendo conmutativa, asociativa e idempotente (tests con ediciones al azar en varias monedas).
+
+**Compatibilidad.** Los grupos de la v0.3 no traen `original` y se leen igual. La v0.3 **descarta** los campos que no
+conoce (`parseGroup` reconstruye cada gasto campo a campo), así que si un móvil con la v0.3 vuelve a compartir el
+grupo, esos gastos llegan sin `original` pero con su `amount` correcto: los saldos no cambian. Si la v0.3 no los
+editó, llevan la misma marca y, gracias al desempate, gana la versión con `original` en los móviles al día. Si la
+v0.3 los edita, gana su edición y el gasto se queda solo en la moneda del grupo. No hace falta subir `v`.
+
 ### Lo que NO viaja
 
 Las **fotos de los tickets** se guardan solo en el dispositivo (IndexedDB, con el id del gasto como clave) y nunca

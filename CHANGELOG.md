@@ -4,6 +4,32 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ## [Sin publicar]
 
+## [0.4.0] - 2026-10-28
+
+### Añadido
+
+- **Varias monedas en un mismo grupo** (viajes): junto al importe, un selector de moneda. En otra moneda se escribe
+  el cambio a mano (la app propone el último que usó el grupo para esa moneda y deja escribirlo al revés: «1 EUR =
+  161,5 JPY» o «1 JPY = 0,0062 EUR») y enseña en vivo el equivalente en la moneda del grupo. Vale para gastos, pagos
+  y gastos fijos; «Repetir hoy» copia también la moneda y el cambio.
+- En la lista de gastos y de gastos fijos, el importe original junto al equivalente; la búsqueda también lo encuentra.
+- El CSV añade «Moneda original», «Importe original» y «Cambio» cuando el grupo tiene gastos en otras monedas.
+
+### Cambiado
+
+- Saldos, repartos, resumen y estadísticas siguen en la moneda del grupo. Los repartos por importes exactos se
+  escriben también en la moneda del grupo (la hoja lo avisa).
+- La moneda del grupo no se puede cambiar mientras haya gastos en otras monedas, ni al editar ni al fusionar un enlace.
+
+### Seguridad
+
+- El equivalente se calcula con aritmética entera (BigInt) y redondeo determinista, y la validación lo **recalcula**:
+  un enlace o archivo con un importe que no cuadra con el original y el cambio, con un cambio fuera de límites o con
+  la misma moneda que el grupo se rechaza entero (tests).
+- La fusión sigue siendo conmutativa, asociativa e idempotente con gastos en varias monedas (tests con ediciones al
+  azar). Con la misma marca de edición gana la versión que conserva el importe original, para que no lo pierda un
+  grupo que pasó por un móvil con la v0.3.
+
 ## [0.3.0] - 2026-10-27
 
 ### Añadido

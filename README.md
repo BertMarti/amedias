@@ -69,6 +69,10 @@ te debe, un toque en **Recordar** te deja un mensaje amable listo para WhatsApp.
 **Repetir hoy** copia un gasto con la fecha de hoy, y las **plantillas** («Súper», «Bombona», «Luz») rellenan
 el gasto por ti. Las plantillas se comparten con el grupo.
 
+**✈️ De viaje, en la moneda de allí**<br>
+¿La cena fue en yenes? Apúntala en yenes con el cambio que te dio el banco (la app recuerda el último) y la
+cuenta del grupo sigue en euros.
+
 **🧾 La foto del ticket**<br>
 Adjunta una foto a cualquier gasto. Se queda **solo en tu móvil**: no viaja en los enlaces ni en las copias.
 
@@ -206,7 +210,8 @@ de seguridad tampoco las incluye.
 <details>
 <summary><b>¿Funciona con otras monedas?</b></summary>
 
-Sí: euros, dólares, libras, pesos, yenes y más. Cada grupo tiene su moneda.
+Sí: euros, dólares, libras, pesos, yenes y más. Cada grupo tiene su moneda y, en un viaje, cada gasto se puede
+apuntar en la moneda del sitio con el cambio que tú le digas.
 </details>
 
 ---
