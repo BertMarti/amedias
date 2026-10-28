@@ -920,6 +920,10 @@ describe('varias monedas en un grupo (v0.4.0)', () => {
       const sinMoneda = updateRecurring(m, rid, { amount: 1500, original: undefined }, T0 + 1);
       expect(sinMoneda.recurring[0]).not.toHaveProperty('original');
       expect(updateRecurring(m, rid, { day: 2 }, T0 + 1).recurring[0]!.original).toEqual(usd);
+      // Cambiar el importe sin mencionar la otra moneda la quita (si no, dejarían de cuadrar).
+      const soloImporte = updateRecurring(m, rid, { amount: 1600 }, T0 + 1);
+      expect(soloImporte.recurring[0]).not.toHaveProperty('original');
+      expect(() => revalidate(soloImporte)).not.toThrow();
       expect(updateRecurring(m, rid, { deleted: true }, T0 + 1).recurring[0]).not.toHaveProperty('original');
     });
 

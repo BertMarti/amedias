@@ -113,8 +113,12 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 ## v0.4.0 en rama (2026-10-28)
 
 - Rama `feat/monedas` subida, **sin PR**: la revisa el lead. Varias monedas por grupo con cambio manual (`src/core/fx.ts`,
-  `src/ui/sheets/MoneyField.tsx`). 209 tests en verde (lint, tipos, build web y `build:android`).
+  `src/ui/sheets/MoneyField.tsx`). 210 tests en verde (lint, tipos, build web y `build:android`).
 - Probado en el navegador integrado a 375 y 320 px, claro y oscuro: gasto en JPY (≈ 21,67 €), en USD con el cambio al
   revés y reparto por importes, cambio propuesto en un pago, edición, «Grupo y personas» con la moneda bloqueada, saldos
   y resumen. Sin desbordes (ancho de página = ancho de pantalla) ni errores de CSP o Trusted Types.
+- Auditoría (subagente security-auditor): nada bloqueante. Corregidos: `commit` ya no deja escapar un error de `fn`
+  (avisa con `toast.notApplied` y devuelve `false`), `updateRecurring` con `amount` sin `original` quita la otra
+  moneda, y el aviso de `currency` al fusionar explica cómo salir (misma moneda en los dos móviles). Aceptado: la
+  bifurcación de moneda entre dos móviles sin conexión (T13).
 - Pendiente: probarlo en un móvil real y decidir con el lead si las plantillas deberían guardar también otra moneda.

@@ -167,8 +167,7 @@ export function GroupSettingsSheet({ active, onClose, group }: SheetProps & { gr
           className="btn btn--primary"
           disabled={!dirty}
           onClick={() => {
-            commit(group.id, (g) => renameGroup(g, { name, emoji, currency }));
-            toast(t('toast.saved'));
+            if (commit(group.id, (g) => renameGroup(g, { name, emoji, currency }))) toast(t('toast.saved'));
           }}
         >
           <Icon name="check" />

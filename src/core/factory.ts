@@ -89,7 +89,8 @@ export function addRecurring(group: Group, input: RecurringInput, now = Date.now
 
 /**
  * Cambia parte de un gasto fijo. `original: undefined` en `patch` quita el importe en otra moneda; si `patch` no lo
- * menciona, se queda como estaba. Al borrarlo, la lápida no guarda `original`.
+ * menciona, se queda como estaba, salvo que cambie `amount` (entonces se quita). Al borrarlo, la lápida no guarda
+ * `original`.
  */
 export function updateRecurring(group: Group, id: Id, patch: Partial<RecurringInput> & { deleted?: boolean }, now = Date.now()): Group {
   return {
@@ -97,7 +98,9 @@ export function updateRecurring(group: Group, id: Id, patch: Partial<RecurringIn
     recurring: group.recurring.map((r) => {
       if (r.id !== id) return r;
       const next = { ...r, ...patch, updatedAt: bump(r.updatedAt, now) } as Recurring;
-      return 'original' in patch || patch.deleted ? setOriginal(next, patch.deleted ? undefined : patch.original) : next;
+      // Cambiar el importe sin decir nada de la otra moneda la quita: si no, `amount` y `original` dejarían de cuadrar.
+      if (patch.deleted || ('amount' in patch && !('original' in patch))) return setOriginal(next, undefined);
+      return 'original' in patch ? setOriginal(next, patch.original) : next;
     }),
   };
 }

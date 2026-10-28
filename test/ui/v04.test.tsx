@@ -1,7 +1,7 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import App from '../../src/App';
-import { baseAmount, loadGroups, type Group } from '../../src/core';
+import { addExpense, baseAmount, loadGroups, type Group, type Original } from '../../src/core';
 
 let fetchMock: Mock;
 
@@ -176,5 +176,25 @@ describe('varias monedas (v0.4.0)', () => {
     const select = within(gs).getByLabelText('Moneda') as HTMLSelectElement;
     const enabled = [...select.options].filter((o) => !o.disabled).map((o) => o.value);
     expect(enabled).toEqual(['EUR']);
+  });
+
+  it('si mientras eliges otra moneda para el grupo llega un gasto en otra moneda, avisa y no guarda', () => {
+    viaje();
+    fireEvent.click(screen.getByRole('button', { name: 'Grupo y personas' }));
+    const gs = dialog('Grupo y personas');
+    fireEvent.change(within(gs).getByLabelText('Moneda'), { target: { value: 'USD' } });
+    // Otra pestaña (o una fusión) apunta un gasto en yenes.
+    const g = group();
+    const o: Original = { currency: 'JPY', amount: 3500, rate: 161_500_000 };
+    const ids = g.members.map((m) => m.id);
+    const next = addExpense(g, { title: 'Ramen', amount: baseAmount(o, 'EUR'), original: o, paidBy: ids[0]!, split: { mode: 'equal', among: ids }, category: 'restaurante', date: '2026-10-05' });
+    localStorage.setItem('repartito:v1:grupos', JSON.stringify([next]));
+    act(() => {
+      window.dispatchEvent(new StorageEvent('storage', { key: 'repartito:v1:grupos' }));
+    });
+    fireEvent.click(within(gs).getByRole('button', { name: 'Guardar' }));
+    expect(screen.getByText(/el grupo ha cambiado mientras tanto/)).toBeTruthy();
+    expect(screen.queryByText('Guardado')).toBeNull();
+    expect(group().currency).toBe('EUR');
   });
 });
