@@ -1,4 +1,7 @@
-/** Español (idioma por defecto). Define las claves: `en.ts` debe tener exactamente las mismas. `{x}` se rellena al usarlo. */
+/**
+ * Español (idioma de referencia). Define las claves: `ca.ts`, `gl.ts`, `pt.ts` y `en.ts` deben tener exactamente las
+ * mismas (el tipo `Dict` y `test/ui/i18n.test.ts` lo comprueban). `{x}` se rellena al usarlo.
+ */
 export const es = {
   'app.title': 'Repartito: gastos compartidos sin cuentas',
   'you.tag': '(tú)',

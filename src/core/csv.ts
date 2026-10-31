@@ -5,6 +5,7 @@
  * (inyección de fórmulas: un concepto como «=HYPERLINK(...)» no se ejecutará al abrir el archivo).
  */
 import { formatRate } from './fx';
+import { LOCALES, type Lang } from './lang';
 import { decimals } from './money';
 import { cleanText, revalidate } from './validate';
 import { shareOf } from './split';
@@ -17,36 +18,88 @@ function cell(value: string, sep: string): string {
   return /["\n\r]/.test(safe) || safe.includes(sep) ? `"${safe.replace(/"/g, '""')}"` : safe;
 }
 
+interface CsvText {
+  head: (currency: Currency) => string[];
+  fx: [string, string, string];
+  paidBy: string;
+  shareOf: (name: string) => string;
+  payment: string;
+  expense: string;
+}
+
+/** Cabeceras y tipos por idioma. En catalán, «Part (Anna)» evita el apóstrofo de «d’Anna» delante de vocal. */
+const CSV_TEXT: Record<Lang, CsvText> = {
+  es: {
+    head: (c) => ['Fecha', 'Concepto', 'Categoría', 'Tipo', `Importe (${c})`],
+    fx: ['Moneda original', 'Importe original', 'Cambio'],
+    paidBy: 'Pagó',
+    shareOf: (n) => `Parte de ${n}`,
+    payment: 'Pago',
+    expense: 'Gasto',
+  },
+  ca: {
+    head: (c) => ['Data', 'Concepte', 'Categoria', 'Tipus', `Import (${c})`],
+    fx: ['Moneda original', 'Import original', 'Canvi'],
+    paidBy: 'Ha pagat',
+    shareOf: (n) => `Part (${n})`,
+    payment: 'Pagament',
+    expense: 'Despesa',
+  },
+  gl: {
+    head: (c) => ['Data', 'Concepto', 'Categoría', 'Tipo', `Importe (${c})`],
+    fx: ['Moeda orixinal', 'Importe orixinal', 'Cambio'],
+    paidBy: 'Pagou',
+    shareOf: (n) => `Parte de ${n}`,
+    payment: 'Pagamento',
+    expense: 'Gasto',
+  },
+  pt: {
+    head: (c) => ['Data', 'Descrição', 'Categoria', 'Tipo', `Valor (${c})`],
+    fx: ['Moeda original', 'Valor original', 'Câmbio'],
+    paidBy: 'Pagou',
+    shareOf: (n) => `Parte de ${n}`,
+    payment: 'Pagamento',
+    expense: 'Despesa',
+  },
+  en: {
+    head: (c) => ['Date', 'Description', 'Category', 'Type', `Amount (${c})`],
+    fx: ['Original currency', 'Original amount', 'Exchange rate'],
+    paidBy: 'Paid by',
+    shareOf: (n) => `${n}'s share`,
+    payment: 'Payment',
+    expense: 'Expense',
+  },
+};
+
 /**
- * Exporta los gastos vivos. En español usa «;» y coma decimal (lo que espera Excel en España).
+ * Exporta los gastos vivos. Salvo en inglés, usa «;» y coma decimal (lo que espera Excel en España y Portugal).
  *
  * Si algún gasto se pagó en otra moneda, después del importe van tres columnas más: la moneda, el importe en esa
  * moneda y el cambio tal como se escribió («1 EUR = 161,5 JPY»). Los grupos de una sola moneda salen como antes.
+ * `category` traduce la categoría; sin ella sale su identificador («compra»).
  */
-export function exportCsv(group: Group, locale: 'es' | 'en' = 'es'): string {
-  const sep = locale === 'es' ? ';' : ',';
+export function exportCsv(group: Group, lang: Lang = 'es', category: (c: Category) => string = (c) => c): string {
+  const text = CSV_TEXT[lang];
+  const comma = lang !== 'en';
+  const sep = comma ? ';' : ',';
   const num = (c: number, currency: Currency = group.currency) => {
     const d = decimals(currency);
     const s = (c / 10 ** d).toFixed(d);
-    return locale === 'es' ? s.replace('.', ',') : s;
+    return comma ? s.replace('.', ',') : s;
   };
   const people = group.members.filter((m) => !m.deleted);
   const name = new Map(group.members.map((m) => [m.id, m.name]));
   const live = group.expenses.filter((e) => !e.deleted);
   const fx = live.some((e) => e.original);
-  const fxHead = !fx ? [] : locale === 'es' ? ['Moneda original', 'Importe original', 'Cambio'] : ['Original currency', 'Original amount', 'Exchange rate'];
-  const head =
-    locale === 'es'
-      ? ['Fecha', 'Concepto', 'Categoría', 'Tipo', `Importe (${group.currency})`, ...fxHead, 'Pagó', ...people.map((p) => `Parte de ${p.name}`)]
-      : ['Date', 'Description', 'Category', 'Type', `Amount (${group.currency})`, ...fxHead, 'Paid by', ...people.map((p) => `${p.name}'s share`)];
+  const head = [...text.head(group.currency), ...(fx ? text.fx : []), text.paidBy, ...people.map((p) => text.shareOf(p.name))];
   const rows = live
     .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))
     .map((e) => {
       const shares = shareOf(e.amount, e.split);
-      const tipo = e.kind === 'transfer' ? (locale === 'es' ? 'Pago' : 'Payment') : locale === 'es' ? 'Gasto' : 'Expense';
+      const tipo = e.kind === 'transfer' ? text.payment : text.expense;
       const o = e.original;
-      const fxCells = !fx ? [] : o ? [o.currency, num(o.amount, o.currency), formatRate(o, group.currency, locale === 'es' ? 'es-ES' : 'en-GB')] : ['', '', ''];
-      return [e.date, e.title, e.category, tipo, num(e.amount), ...fxCells, name.get(e.paidBy) ?? '?', ...people.map((p) => num(shares[p.id] ?? 0))];
+      const fxCells = !fx ? [] : o ? [o.currency, num(o.amount, o.currency), formatRate(o, group.currency, LOCALES[lang])] : ['', '', ''];
+      return [e.date, e.title, category(e.category), tipo, num(e.amount), ...fxCells, name.get(e.paidBy) ?? '?', ...people.map((p) => num(shares[p.id] ?? 0))];
     });
   // BOM para que Excel detecte UTF-8 (tildes y eñes).
   return '\ufeff' + [head, ...rows].map((r) => r.map((c) => cell(String(c), sep)).join(sep)).join('\r\n') + '\r\n';

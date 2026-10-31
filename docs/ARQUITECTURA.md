@@ -12,10 +12,11 @@ src/
     share.ts       enlaces comprimidos y cifrados en el fragmento #
     csv.ts         exportar CSV (anti-fórmulas) e importar Splitwise
     storage.ts     localStorage, ajustes y copias de seguridad
+    lang.ts        idiomas y detección del idioma del dispositivo
     factory.ts     crear y editar con ids y marcas de tiempo
     stats.ts       resúmenes por categoría y mes
   ui/            pantallas y componentes React
-  i18n/          español e inglés
+  i18n/          español (referencia), catalán, gallego, portugués e inglés
 public/          manifest, iconos y service worker (funciona sin conexión)
 android/         proyecto de Android (Capacitor): la misma web dentro de un APK
   ui/native.ts     lo único que cambia en la app (compartir, guardar, URL pública)

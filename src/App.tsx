@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { LOCALES } from './core';
 import { I18nProvider, makeI18n } from './i18n';
 import { AppContext, type AppApi } from './ui/context';
 import { GroupScreen } from './ui/group/GroupScreen';
@@ -34,7 +35,7 @@ export default function App() {
     const root = document.documentElement;
     if (theme === 'auto') delete root.dataset.theme;
     else root.dataset.theme = theme;
-    root.lang = lang;
+    root.lang = LOCALES[lang];
     const dark = theme === 'dark' || (theme === 'auto' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? THEME_COLORS.dark : THEME_COLORS.light);
     document.title = makeI18n(lang).t('app.title');

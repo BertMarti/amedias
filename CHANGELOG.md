@@ -4,6 +4,30 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ## [Sin publicar]
 
+### Añadido
+
+- **Catalán, gallego y portugués de Portugal**, además de español e inglés. Todas las pantallas, avisos, el
+  recordatorio amable, el mensaje para compartir, el grupo de ejemplo y el CSV (cabeceras, tipo y categoría) salen
+  en el idioma elegido. Dinero, fechas y números usan el formato de cada uno (`ca-ES`, `gl-ES`, `pt-PT`).
+- **Idioma del dispositivo**: la primera vez, la app elige el primero de la lista del navegador o del móvil que sabe
+  hablar (`ca-ES-valencia` → catalán, `pt-BR` → portugués; euskera, asturiano y aragonés → español; cualquier otro →
+  inglés). Lo elegido en Ajustes se guarda y manda.
+
+### Cambiado
+
+- En Ajustes, el idioma se elige con botones que bajan de línea (cinco no caben en una fila a 320 px); cada nombre va
+  en su propio idioma y marcado con `lang` para los lectores de pantalla.
+- `<html lang>` lleva ahora la región (`es-ES`, `ca-ES`, `gl-ES`, `pt-PT`, `en-GB`).
+- El CSV escribe la categoría con su nombre en el idioma de la app («Comer fuera», «Eating out») en vez del
+  identificador interno («restaurante»).
+
+### Seguridad
+
+- Sin dependencias nuevas ni cambios en la CSP. Las traducciones son texto estático; un test comprueba que no llevan
+  marcado ni llaves sueltas y que todas tienen las mismas claves y variables que el español. La categoría traducida
+  del CSV pasa por la misma protección anti-fórmulas (test). Un idioma guardado desconocido, o una etiqueta del
+  dispositivo como «constructor», se ignora (tests).
+
 ## [0.4.0] - 2026-10-28
 
 ### Añadido

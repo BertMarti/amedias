@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { backupJson, today, type Settings } from '../../core';
-import { useI18n, type Key } from '../../i18n';
+import { backupJson, LANGS, LOCALES, today, type Settings } from '../../core';
+import { LANG_NAMES, useI18n, type Key } from '../../i18n';
 import { useApp } from '../context';
 import { Icon } from '../icons';
 import type { SheetProps } from '../Layers';
@@ -79,16 +79,20 @@ export function SettingsSheet({ active, onClose }: SheetProps) {
   return (
     <Sheet title={t('settings.title')} active={active} onClose={onClose}>
       <section className="form">
-        <Radios
-          legend={t('settings.lang')}
-          name="lang"
-          value={settings.lang}
-          options={[
-            { v: 'es', label: 'Español' },
-            { v: 'en', label: 'English' },
-          ]}
-          onChange={(lang) => setSettings({ lang })}
-        />
+        <fieldset className="field">
+          <legend className="field-label">{t('settings.lang')}</legend>
+          {/* Cinco idiomas no caben en un segmentado a 320 px: chips que bajan de línea. Cada nombre, en su idioma. */}
+          <div className="chips">
+            {LANGS.map((l) => (
+              <label key={l} className={`chip chip--lang${settings.lang === l ? ' chip--on' : ''}`}>
+                <input type="radio" name="lang" checked={settings.lang === l} onChange={() => setSettings({ lang: l })} />
+                <span className="chip-label" lang={LOCALES[l]}>
+                  {LANG_NAMES[l]}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <Radios legend={t('settings.theme')} name="theme" value={settings.theme} options={THEMES.map((x) => ({ v: x.v, label: t(x.label) }))} onChange={(theme) => setSettings({ theme })} />
       </section>
 
