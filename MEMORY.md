@@ -128,9 +128,9 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 - Pendiente de comprobar en un móvil real: el menú de compartir de Android con el recordatorio y el selector de
   fotos dentro de la app (el emulador del CI no lo cubre).
 
-## v0.4.0 en rama (2026-10-28)
+## v0.4.0 (publicada el 2026-10-28)
 
-- Rama `feat/monedas` subida, **sin PR**: la revisa el lead. Varias monedas por grupo con cambio manual (`src/core/fx.ts`,
+- PR #4 fusionada y publicada como v0.4.0. Varias monedas por grupo con cambio manual (`src/core/fx.ts`,
   `src/ui/sheets/MoneyField.tsx`). 210 tests en verde (lint, tipos, build web y `build:android`).
 - Probado en el navegador integrado a 375 y 320 px, claro y oscuro: gasto en JPY (≈ 21,67 €), en USD con el cambio al
   revés y reparto por importes, cambio propuesto en un pago, edición, «Grupo y personas» con la moneda bloqueada, saldos
@@ -139,11 +139,11 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
   (avisa con `toast.notApplied` y devuelve `false`), `updateRecurring` con `amount` sin `original` quita la otra
   moneda, y el aviso de `currency` al fusionar explica cómo salir (misma moneda en los dos móviles). Aceptado: la
   bifurcación de moneda entre dos móviles sin conexión (T13).
-- Pendiente: probarlo en un móvil real y decidir con el lead si las plantillas deberían guardar también otra moneda.
+- Pendiente: probarlo en un móvil real Decidido: las plantillas guardan el equivalente en la moneda del grupo (sencillo y sin cambio que caduque); se revisará si alguien lo pide.
 
-## Idiomas en rama (2026-10-31)
+## v0.5.0 «Lenguas» (publicada el 2026-10-31)
 
-- Rama `feat/idiomas`, **sin subir ni PR**: la revisa el lead. Catalán, gallego y portugués de Portugal, detección del
+- PR #5 fusionada y publicada como v0.5.0. Catalán, gallego y portugués de Portugal, detección del
   idioma del dispositivo y selector en Ajustes. 242 tests en verde (lint, tipos, build web y `vite build --mode android`).
 - Probado en el navegador integrado a 320 px con el build (`vite preview`) en ca, gl y pt: inicio, las cuatro pestañas
   del grupo, nuevo gasto, «Grupo y personas», compartir, ajustes y nuevo grupo. Ancho de página = ancho de pantalla en

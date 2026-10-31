@@ -38,7 +38,7 @@ ninguna de esas trabas.
 - [x] Fotos de tickets guardadas solo en el dispositivo (IndexedDB), nunca en el enlace, las copias ni el CSV.
 - [x] Atajos: «Repetir hoy» en cualquier gasto y plantillas por grupo («Súper», «Bombona», «Luz») que se sincronizan.
 
-## v0.4.0 «Casa propia» — siguiente (depende del autor)
+## v0.4.0 «Casa propia» — publicada en parte (el resto depende del autor)
 
 - [ ] **Origen propio** para la web (amenazas I6, I7, revisión externa P1): no compartir `localStorage`, Cache API
   ni service workers con otras webs de `bertmarti.github.io`. Necesita que el autor cree una **organización de
@@ -59,7 +59,7 @@ ninguna de esas trabas.
 - [ ] Sincronización en vivo opcional entre dispositivos (WebRTC o un relé cifrado de extremo a extremo).
 - [ ] Widgets e integración con el menú de compartir del móvil (Share Target).
 - Más idiomas (en parte):
-  - [x] Catalán, gallego y portugués de Portugal (rama `feat/idiomas`), con detección del idioma del dispositivo y
+  - [x] Catalán, gallego y portugués de Portugal (**v0.5.0 «Lenguas»**), con detección del idioma del dispositivo y
     selector en Ajustes. Falta una lectura de hablantes nativos antes de anunciarlos a lo grande.
   - [ ] **Euskera, pendiente de revisión nativa**: no se publica una traducción sin que la revise alguien que lo
     hable. Mientras, un dispositivo en euskera ve la app en español.
