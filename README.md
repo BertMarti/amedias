@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/sin-registro-17B897?style=flat-square&labelColor=1D1A16" alt="Sin registro">
   <img src="https://img.shields.io/badge/sin-anuncios-17B897?style=flat-square&labelColor=1D1A16" alt="Sin anuncios">
   <img src="https://img.shields.io/badge/funciona-sin_conexi%C3%B3n-FF5A3C?style=flat-square&labelColor=1D1A16" alt="Funciona sin conexión">
-  <img src="https://img.shields.io/badge/idiomas-ES_%C2%B7_EN-FBF7F0?style=flat-square&labelColor=1D1A16" alt="Español e inglés">
+  <img src="https://img.shields.io/badge/idiomas-ES_%C2%B7_CA_%C2%B7_GL_%C2%B7_PT_%C2%B7_EN-FBF7F0?style=flat-square&labelColor=1D1A16" alt="Español, catalán, gallego, portugués e inglés">
   <img src="https://img.shields.io/badge/app-Android-17B897?style=flat-square&labelColor=1D1A16" alt="App para Android">
 </p>
 
@@ -80,7 +80,11 @@ Adjunta una foto a cualquier gasto. Se queda **solo en tu móvil**: no viaja en 
 Un resumen por meses y por categorías (súper, casa, facturas, ocio…).
 
 **🌙 Bonita de día y de noche**<br>
-Tema claro y oscuro, en español y en inglés, pensada para usarla con una mano.
+Tema claro y oscuro, pensada para usarla con una mano.
+
+**🗣️ En tu idioma**<br>
+En español, catalán, gallego, portugués (de Portugal) e inglés. La primera vez habla el idioma de tu móvil;
+lo cambias cuando quieras en **Ajustes**. El euskera llegará cuando lo revise alguien que lo hable.
 
   </td>
   <td width="42%" valign="top" align="center">

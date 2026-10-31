@@ -58,4 +58,8 @@ ninguna de esas trabas.
 
 - [ ] Sincronización en vivo opcional entre dispositivos (WebRTC o un relé cifrado de extremo a extremo).
 - [ ] Widgets e integración con el menú de compartir del móvil (Share Target).
-- [ ] Más idiomas (catalán, gallego, euskera, portugués).
+- Más idiomas (en parte):
+  - [x] Catalán, gallego y portugués de Portugal (rama `feat/idiomas`), con detección del idioma del dispositivo y
+    selector en Ajustes. Falta una lectura de hablantes nativos antes de anunciarlos a lo grande.
+  - [ ] **Euskera, pendiente de revisión nativa**: no se publica una traducción sin que la revise alguien que lo
+    hable. Mientras, un dispositivo en euskera ve la app en español.

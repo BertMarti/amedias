@@ -1,5 +1,5 @@
 # MEMORY.md · Repartito
-Última actualización: 2026-10-28 por builder (v0.4.0, rama `feat/monedas`)
+Última actualización: 2026-10-31 por builder (rama `feat/idiomas`)
 
 Memoria compartida entre agentes: estado, decisiones y trampas. Lo estable está en [AGENTS.md](AGENTS.md);
 la hoja de ruta, en [PLAN.md](PLAN.md).
@@ -50,6 +50,19 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 - **Lápidas sin `original`** (se quita al borrar y al validar): un gasto borrado no bloquea cambiar la moneda del grupo
   ni deja el grupo inválido tras cambiarla.
 - **Moneda del grupo bloqueada** con gastos o fijos vivos en otras monedas (`hasForeign`), al editar y al fusionar.
+- **Idiomas** (rama `feat/idiomas`): `es` es la referencia (`Dict`); `ca`, `gl`, `pt` (de Portugal) y `en` se
+  comprueban por tipo y por test (mismas claves, mismas `{variables}`, parejas `_one/_other`, sin marcado). La lista,
+  los locales de `Intl` y la detección viven en `src/core/lang.ts` (el dominio no depende de `i18n/`). Sin ajuste
+  guardado, `loadSettings` toma el primer idioma de `navigator.languages` que la app sabe hablar (`pt-BR` → `pt`;
+  `eu`, `ast`, `an` → `es`; ninguno → `en`; lista vacía → `es`) y, en cuanto se guardan las preferencias, queda fijo:
+  se descartó un modo «automático» persistente por simplicidad (los usuarios de antes ya tienen `lang` guardado y no
+  cambian). **Euskera fuera** hasta tener una revisión nativa: preferimos español a una traducción floja.
+- **Tono por idioma**: tú/vosotros → «tu/vosaltres» (ca), «ti/vós» (gl) y «tu/vocês» (pt-PT). En pt-PT, equivalentes
+  locales: MB WAY (no Bizum), talão, telemóvel, palavra-passe, «Juntar» por «Fusionar»; y sin «Obrigado/a» en los
+  recordatorios (lo escribe la persona, con su género): «Agradeço desde já». En catalán se evita «de {name}» (el
+  apóstrofo dependería del nombre): «Import: {name}», y en el CSV «Part (Anna)». Los meses van tal como los da `Intl`
+  («octubre del 2026» en ca), por eso las frases con `{month}` en catalán son «Darrer mes: …».
+- **Selector de idioma**: chips que bajan de línea (`.chip--lang`), no el segmentado: cinco no caben a 320 px.
 - **Recordatorio**: «Recordar»/«Avisar» sustituye a «Copiar» en las transferencias en las que estás tú (con copia
   como alternativa); las demás siguen con «Copiar». `shareLink` acepta ya `url` opcional.
 
@@ -77,6 +90,11 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 - En el navegador integrado, `form_input` cambia el valor del DOM pero React no se entera: para probar formularios,
   teclear de verdad (`computer type`) o usar el `setter` nativo + evento `input`/`change`. Las capturas van un fotograma
   por detrás durante las animaciones de las hojas.
+- happy-dom (y Node 24) dicen `navigator.languages = ['en-US']`: `test/setup.ts` simula un dispositivo en español
+  para que los tests de interfaz, escritos en español, no cambien de idioma. Para probar la detección, redefinir
+  `navigator.language(s)` con `Object.defineProperty` y devolverlo a `es-ES` al acabar.
+- `Intl` en `pt-PT` escribe «12/10» para `{ day, month: 'short' }` (no «12 out.»), y en `ca-ES` «12 d’oct.»: es lo
+  que da CLDR, no un fallo.
 - `sw.js` en `public/` lleva `VERSION = 'dev'` e `INTEGRITY = {}`: sin build no cachea nada. El CI comprueba que el build los reescribe.
 
 ## Tras publicar (2026-10-25)
@@ -122,3 +140,15 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
   moneda, y el aviso de `currency` al fusionar explica cómo salir (misma moneda en los dos móviles). Aceptado: la
   bifurcación de moneda entre dos móviles sin conexión (T13).
 - Pendiente: probarlo en un móvil real y decidir con el lead si las plantillas deberían guardar también otra moneda.
+
+## Idiomas en rama (2026-10-31)
+
+- Rama `feat/idiomas`, **sin subir ni PR**: la revisa el lead. Catalán, gallego y portugués de Portugal, detección del
+  idioma del dispositivo y selector en Ajustes. 241 tests en verde (lint, tipos y build web).
+- Probado en el navegador integrado a 320 px con el build (`vite preview`) en ca, gl y pt: inicio, las cuatro pestañas
+  del grupo, nuevo gasto, «Grupo y personas», compartir, ajustes y nuevo grupo. Ancho de página = ancho de pantalla en
+  todas, consola sin errores (ni CSP ni Trusted Types). En catalán, «Prova-ho amb un grup d’exemple» ocupa dos líneas
+  y la línea «Ha pagat Leo, 11 d’oct.» tres; en todos, como en español, los nombres largos de los saldos se recortan
+  con «…» cuando el importe es grande.
+- Pendiente: lectura de hablantes nativos de ca, gl y pt; euskera con revisión nativa; `build:android` no se ha
+  probado en esta rama (no cambia nada nativo; las cadenas de Android solo llevan «Repartito»).
