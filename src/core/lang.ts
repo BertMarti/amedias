@@ -27,8 +27,8 @@ export function detectLang(tags: readonly string[]): Lang {
     if (typeof tag !== 'string') continue;
     const primary = tag.trim().toLowerCase().split(/[-_]/)[0] ?? '';
     if (isLang(primary)) return primary;
-    const near = CLOSEST[primary];
-    if (near) return near;
+    // `hasOwn`: una etiqueta «constructor» no puede sacar `Object` de la cadena de prototipos.
+    if (Object.hasOwn(CLOSEST, primary)) return CLOSEST[primary]!;
   }
   return tags.some((x) => typeof x === 'string' && x.trim() !== '') ? 'en' : 'es';
 }

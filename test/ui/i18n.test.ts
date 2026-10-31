@@ -87,6 +87,11 @@ describe('elegir idioma', () => {
     expect(detectLang(['an'])).toBe('es');
   });
 
+  it('una etiqueta con nombre de propiedad heredada no cuela un idioma falso', () => {
+    for (const tag of ['constructor', 'toString', '__proto__', 'hasOwnProperty-x', 'valueOf']) expect(detectLang([tag]), tag).toBe('en');
+    expect(detectLang(['constructor', 'gl'])).toBe('gl');
+  });
+
   it('sin coincidencias, inglés; sin información, español', () => {
     expect(detectLang(['fr-FR', 'de'])).toBe('en');
     expect(detectLang([])).toBe('es');

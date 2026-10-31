@@ -25,7 +25,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 - Sin dependencias nuevas ni cambios en la CSP. Las traducciones son texto estático; un test comprueba que no llevan
   marcado ni llaves sueltas y que todas tienen las mismas claves y variables que el español. La categoría traducida
-  del CSV pasa por la misma protección anti-fórmulas (test). Un idioma guardado desconocido se ignora (test).
+  del CSV pasa por la misma protección anti-fórmulas (test). Un idioma guardado desconocido, o una etiqueta del
+  dispositivo como «constructor», se ignora (tests).
 
 ## [0.4.0] - 2026-10-28
 

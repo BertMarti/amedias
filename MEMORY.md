@@ -144,11 +144,14 @@ la hoja de ruta, en [PLAN.md](PLAN.md).
 ## Idiomas en rama (2026-10-31)
 
 - Rama `feat/idiomas`, **sin subir ni PR**: la revisa el lead. Catalán, gallego y portugués de Portugal, detección del
-  idioma del dispositivo y selector en Ajustes. 241 tests en verde (lint, tipos y build web).
+  idioma del dispositivo y selector en Ajustes. 242 tests en verde (lint, tipos, build web y `vite build --mode android`).
 - Probado en el navegador integrado a 320 px con el build (`vite preview`) en ca, gl y pt: inicio, las cuatro pestañas
   del grupo, nuevo gasto, «Grupo y personas», compartir, ajustes y nuevo grupo. Ancho de página = ancho de pantalla en
   todas, consola sin errores (ni CSP ni Trusted Types). En catalán, «Prova-ho amb un grup d’exemple» ocupa dos líneas
   y la línea «Ha pagat Leo, 11 d’oct.» tres; en todos, como en español, los nombres largos de los saldos se recortan
   con «…» cuando el importe es grande.
-- Pendiente: lectura de hablantes nativos de ca, gl y pt; euskera con revisión nativa; `build:android` no se ha
-  probado en esta rama (no cambia nada nativo; las cadenas de Android solo llevan «Repartito»).
+- Auditoría (subagente security-auditor): nada bloqueante. Corregido: `detectLang` buscaba en un objeto literal y una
+  etiqueta `constructor` en `navigator.languages` devolvía `Object` como idioma (pantalla en blanco sin salida);
+  ahora usa `Object.hasOwn`, con test.
+- Pendiente: lectura de hablantes nativos de ca, gl y pt; euskera con revisión nativa; `cap sync` y el APK no se
+  han probado en esta rama (no cambia nada nativo; las cadenas de Android solo llevan «Repartito»).
