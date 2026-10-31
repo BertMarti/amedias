@@ -1,14 +1,20 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import { formatMoney, type Category, type Cents, type Currency } from '../core';
-import { es, type Dict } from './es';
+import { formatMoney, LOCALES, type Category, type Cents, type Currency, type Lang } from '../core';
+import { ca } from './ca';
 import { en } from './en';
+import { es, type Dict } from './es';
+import { gl } from './gl';
+import { pt } from './pt';
 
-export type Lang = 'es' | 'en';
+export type { Lang } from '../core';
 export type Key = keyof Dict;
 export type PluralBase = { [K in Key]: K extends `${infer B}_one` ? B : never }[Key];
 export type Vars = Record<string, string | number>;
 
-export const dictionaries: Record<Lang, Dict> = { es, en };
+export const dictionaries: Record<Lang, Dict> = { es, ca, gl, pt, en };
+
+/** Nombre de cada idioma en ese mismo idioma, para el selector de Ajustes. */
+export const LANG_NAMES: Record<Lang, string> = { es: 'Español', ca: 'Català', gl: 'Galego', pt: 'Português', en: 'English' };
 
 function fill(text: string, vars?: Vars): string {
   if (!vars) return text;
@@ -31,7 +37,7 @@ export interface I18n {
 
 export function makeI18n(lang: Lang): I18n {
   const dict = dictionaries[lang];
-  const locale = lang === 'es' ? 'es-ES' : 'en-GB';
+  const locale = LOCALES[lang];
   const t = (key: Key, vars?: Vars) => fill(dict[key], vars);
   return {
     lang,

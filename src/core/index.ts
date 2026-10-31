@@ -7,6 +7,7 @@ export * from './recurring';
 export * from './validate';
 export * from './share';
 export * from './csv';
+export * from './lang';
 export * from './storage';
 export * from './factory';
 export * from './stats';

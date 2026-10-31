@@ -2,6 +2,7 @@
  * Guardado local (localStorage). Nada sale del dispositivo salvo que la persona comparta un enlace o un
  * archivo. Lo que se lee se vuelve a validar: el almacenamiento también puede estar dañado o manipulado.
  */
+import { detectLang, deviceLanguages, isLang, type Lang } from './lang';
 import type { Group } from './types';
 import { parseGroup } from './validate';
 
@@ -42,7 +43,8 @@ export function migrateLegacyStorage(storage: Storage = localStorage): number {
 }
 
 export interface Settings {
-  lang: 'es' | 'en';
+  /** Si no hay ninguno guardado, el del dispositivo (`detectLang`); al guardar las preferencias, se queda fijo. */
+  lang: Lang;
   theme: 'auto' | 'light' | 'dark';
   lastGroup?: string;
   /** Mi nombre en cada grupo (id de grupo → id de persona), para «tú debes / te deben». */
@@ -92,7 +94,7 @@ export function saveGroups(groups: Group[], storage: Storage = localStorage): vo
   }
 }
 
-export function loadSettings(storage: Storage = localStorage): Settings {
+export function loadSettings(storage: Storage = localStorage, languages: readonly string[] = deviceLanguages()): Settings {
   try {
     const s = JSON.parse(storage.getItem(SETTINGS) ?? '{}') as Partial<Settings>;
     const me: Record<string, string> = {};
@@ -100,13 +102,13 @@ export function loadSettings(storage: Storage = localStorage): Settings {
       for (const [g, m] of Object.entries(s.me)) if (/^[0-9a-f-]{36}$/.test(g) && /^[0-9a-f-]{36}$/.test(String(m))) me[g] = String(m);
     }
     return {
-      lang: s.lang === 'en' ? 'en' : 'es',
+      lang: isLang(s.lang) ? s.lang : detectLang(languages),
       theme: s.theme === 'light' || s.theme === 'dark' ? s.theme : 'auto',
       ...(typeof s.lastGroup === 'string' && /^[0-9a-f-]{36}$/.test(s.lastGroup) ? { lastGroup: s.lastGroup } : {}),
       me,
     };
   } catch {
-    return { ...DEFAULT_SETTINGS };
+    return { ...DEFAULT_SETTINGS, lang: detectLang(languages) };
   }
 }
 

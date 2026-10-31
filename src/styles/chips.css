@@ -63,6 +63,11 @@
   opacity: 0.8;
 }
 
+/* Idiomas en Ajustes: sin icono, así que el mismo aire a los dos lados. */
+.chip--lang {
+  padding: 4px 16px;
+}
+
 .chip--action {
   padding: 4px 16px;
   border-style: dashed;

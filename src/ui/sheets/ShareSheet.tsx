@@ -27,7 +27,7 @@ async function makeQr(text: string): Promise<string | null> {
 
 /** Compartir y sincronizar: enlace (con contraseña opcional), QR, archivo y CSV. Nada se sube a ningún sitio. */
 export function ShareSheet({ active, onClose, group }: SheetProps & { group: Group }) {
-  const { t, lang } = useI18n();
+  const { t, lang, cat } = useI18n();
   const { toast } = useApp();
   const passId = useId();
   const [pass, setPass] = useState('');
@@ -164,7 +164,7 @@ export function ShareSheet({ active, onClose, group }: SheetProps & { group: Gro
             type="button"
             className="btn btn--ghost"
             onClick={() => {
-              downloadText(`repartito-${fileSlug(group.name)}.csv`, exportCsv(group, lang), 'text/csv;charset=utf-8');
+              downloadText(`repartito-${fileSlug(group.name)}.csv`, exportCsv(group, lang, cat), 'text/csv;charset=utf-8');
               toast(t('toast.downloaded'), 'info');
             }}
           >
