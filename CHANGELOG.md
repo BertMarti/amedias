@@ -4,6 +4,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ## [Sin publicar]
 
+## [0.5.0] - 2026-10-31
+
 ### Añadido
 
 - **Catalán, gallego y portugués de Portugal**, además de español e inglés. Todas las pantallas, avisos, el
@@ -132,7 +134,10 @@ Auditoría independiente antes de publicar; todo corregido y con test de regresi
 - Los datos dañados se apartan con fecha y se pueden descargar desde Ajustes.
 - El despliegue exige las mismas comprobaciones que el CI.
 
-[Sin publicar]: https://github.com/BertMarti/repartito/compare/v0.2.1...HEAD
+[Sin publicar]: https://github.com/BertMarti/repartito/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/BertMarti/repartito/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/BertMarti/repartito/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/BertMarti/repartito/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/BertMarti/repartito/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/BertMarti/repartito/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/BertMarti/repartito/releases/tag/v0.1.0
